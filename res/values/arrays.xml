@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="population_options">
+        <item>Zero live neighbors</item>
+        <item>One live neighbors</item>
+        <item>Two live neighbors</item>
+        <item>Three live neighbors</item>
+        <item>Four live neighbors</item>
+        <item>Five live neighbors</item>
+        <item>Six live neighbors</item>
+    </string-array>
+    <string-array name="population_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+     <string-array name="animation_speed_options">
+        <item>Very slow</item>
+        <item>Slow</item>
+        <item>Normal</item>
+        <item>Fast</item>
+        <item>Very fast</item>
+    </string-array>
+    <string-array name="animation_speed_values">
+        <item>2</item>
+        <item>6</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+    </string-array>
+    <string-array name="display_theme_options">
+        <item>Dark theme</item>
+        <item>Light theme</item>
+    </string-array>
+    <string-array name="display_theme_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <array name="themes">
+        <item>@array/dark_theme</item>
+        <item>@array/light_theme</item>
+    </array>
+    <array name="dark_theme">
+        <item>@color/black_background</item>
+        <item>@drawable/cell_black</item>
+        <item>@drawable/cell_red</item>
+    </array>
+    <array name="light_theme">
+        <item>@color/white_background</item>
+        <item>@drawable/cell_white</item>
+        <item>@drawable/cell_blue</item>
+    </array>
+ </resources>

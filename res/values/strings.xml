@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Game Of Life</string>
+    
+    <string name="pause_label">Pause</string>
+    
+    <string name="start_label">Start</string>
+    
+    <string name="edit_label">Edit</string>
+    
+    <string name="move_label">Move</string>
+    
+    <string name="clear_label">Clear</string>
+    
+    <string name="about_label">About...</string>
+    <string name="about_title">About Conway\'s Game of Life</string>
+    <string name="about_text"><b>Description:</b>
+    The Game of Life, also known simply as Life, is a 
+    cellular automaton devised by the British mathematician 
+    John Horton Conway in 1970.
+    \n\nThe "game" is a zero-player game, meaning that its evolution
+    is determined by its initial state, requiring no further
+    input. One interacts with the Game of Life by creating an
+    initial configuration and observing how it evolves.
+    \n\n<b>Rules:</b>
+    The universe of the Game of Life is an infinite two-dimensional
+    orthogonal grid of square cells, each of which is in one of two
+    possible states, alive or dead. Every cell interacts with its
+    eight neighbours, which are the cells that are horizontally,
+    vertically, or diagonally adjacent. At each step in time, the
+    following transitions occur:
+    \n\n\tAny live cell with fewer than two live neighbours dies.
+    \n\tAny live cell with two or three live neighbours lives on.
+    \n\tAny live cell with more than three live neighbours dies.
+    \n\tAny dead cell with exactly three live neighbours becomes a
+    live cell.
+    \n\nThe initial pattern constitutes the seed of the system. The
+    first generation is created by applying the above rules simultaneously
+    to every cell in the seed—births and deaths occur simultaneously, and
+    the discrete moment at which this happens is sometimes called a tick
+    (in other words, each generation is a pure function of the preceding
+    one). The rules continue to be applied repeatedly to create further
+    generations.
+    \n\n<b>More info: </b><i><u>http://en.wikipedia.org/wiki/Conway_game_of_life</u></i>
+    \n\n<b>Programming: </b>Pieter Pareit (pieter.pareit@gmail.com)
+    \n\n<b>Artwork: </b>Birgit Niemegeers (birgit.niemegeers@gmail.com)    
+    </string>
+    
+    <string name="settings_label">Settings...</string>
+    <string name="settings_title">Game of Life Settings</string>
+    <string name="settings_shortcut">s</string>
+    
+    <string name="population_settings_title">Population settings</string>
+    
+    <string name="underpopulation_title">Minimum variable</string>
+    <string name="underpopulation_summary">
+    Any live cell with fewer than the minimum number of live
+    neighbors dies, as if caused by under-population
+    </string>
+
+    <string name="overpopulation_title">Maximum variable</string>
+    <string name="overpopulation_summary">
+    Any live cell with more than the maximum number of live
+    neighbors dies, as if caused by overcrowding
+    </string>
+
+    <string name="spawn_title">Spawn variable</string>
+    <string name="spawn_summary">
+    Any dead cell with exactly the spawn number of live
+    neighbors becomes a live cell
+    </string>
+    
+    <string name="reset_population_settings_title">Reset population settings</string>
+    <string name="reset_population_settings_summary">
+    Reset the population settings so that the rumes of the game
+    match those as invented by Conway
+    </string>
+    
+    <string name="display_settings_title">Display settings</string>
+    
+    <string name="speed_title">Animation speed</string>
+    
+    <string name="theme_title">Display theme</string>
+    
+</resources>

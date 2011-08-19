@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/population_settings_title">
+        <ListPreference android:key="UNDERPOPULATION_VARIABLE"
+	        android:title="@string/underpopulation_title"
+	        android:summary="@string/underpopulation_summary"
+	        android:entries="@array/population_options"
+	        android:entryValues="@array/population_values"
+	        android:dialogTitle="@string/underpopulation_title"
+	        android:defaultValue="2"
+	    />
+	    <ListPreference android:key="OVERPOPULATION_VARIABLE"
+	        android:title="@string/overpopulation_title"
+	        android:summary="@string/overpopulation_summary"
+	        android:entries="@array/population_options"
+	        android:entryValues="@array/population_values"
+	        android:dialogTitle="@string/overpopulation_title"
+	        android:defaultValue="3"
+	    />
+	    <ListPreference android:key="SPAWN_VARIABLE"
+	        android:title="@string/spawn_title"
+	        android:summary="@string/spawn_summary"
+	        android:entries="@array/population_options"
+	        android:entryValues="@array/population_values"
+	        android:dialogTitle="@string/spawn_title"
+	        android:defaultValue="3"
+	    />
+	    <Preference android:key="RESET_POPULATION_SETTINGS"
+            android:title="@string/reset_population_settings_title"
+            android:summary="@string/reset_population_settings_title"
+	    />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/display_settings_title">
+	    <ListPreference android:key="ANIMATION_SPEED"
+	        android:title="@string/speed_title"
+	        android:entries="@array/animation_speed_options"
+	        android:entryValues="@array/animation_speed_values"
+	        android:dialogTitle="@string/speed_title"
+	        android:defaultValue="10"
+	    />
+        <ListPreference android:key="DISPLAY_THEME"
+           android:title="@string/theme_title"
+           android:entries="@array/display_theme_options"
+           android:entryValues="@array/display_theme_values"
+           android:dialogTitle="@string/theme_title"
+        />
+    </PreferenceCategory>
+</PreferenceScreen>
