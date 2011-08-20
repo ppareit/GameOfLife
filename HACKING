@@ -1,0 +1,27 @@
+Assumtions
+==========
+
+You have at least followed and succeeded the Hello, World tutorial
+at http://developer.android.com/resources/tutorials/hello-world.html
+
+Currently Game Of Life expects sdk and virtual machine for at least android 3.2
+
+Setup instructions
+==================
+
+$ cd tmp
+$ git clone git@github.com:ppareit/GameOfLife.git
+
+Start Eclipse
+File -> New -> Project
+Choose Android/Android project
+Click Next
+Create project from existing source
+Browse to location /home/ppareit/tmp/GameOfLife
+Click Finish
+
+Browse to one of the java sourcefiles
+CTRL+F11 (Run) and select 'Android Application'
+
+
+Happy hacking!
