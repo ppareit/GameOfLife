@@ -1,2 +1,24 @@
 This is Conway's Game of Life implementation for Android Honeycomb.
 
+FEATURES
+========
+* Gameloop with pausing and option to fix framerate
+* Draws the board using bitmaps (png)
+* Editing of the board, using touch.
+* Panning and zooming the board, using pinch to zoom.
+* Configure game using settings, including choosing different theme.
+* Uses the action bar.
+
+DEPENDENCIES
+============
+Android 3.2 at the moment.
+
+
+INSTALLATION
+============
+Choose Downloads, download the application 'GameOfLife.apk'. Sideload it to your
+honeycomb tablet. Install it.
+
+HACKING
+=======
+See the file HACKING in the root folder of the project.
