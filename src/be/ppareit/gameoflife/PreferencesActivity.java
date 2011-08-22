@@ -38,6 +38,8 @@ public class PreferencesActivity extends PreferenceActivity {
     private static final String OPTION_SPAWN_DEFAULT = "3";
     private static final String OPTION_ANIMATION_SPEED = "ANIMATION_SPEED";
     private static final String OPTION_ANIMATION_SPEED_DEFAULT = "10";
+    private static final String OPTION_DISPLAY_THEME = "DISPLAY_THEME";
+    private static final String OPTION_DISPLAY_THEME_DEFAULT = "0"; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +88,11 @@ public class PreferencesActivity extends PreferenceActivity {
     }
     
     public static int getDisplayTheme(Context context) {
+        // first get the index of the theme
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int ndx = Integer.parseInt(prefs.getString("DISPLAY_THEME", "0"));
+        String themeNdx = prefs.getString(OPTION_DISPLAY_THEME, OPTION_DISPLAY_THEME_DEFAULT);
+        int ndx = Integer.parseInt(themeNdx);
+        // now convert that index to a real resource
         Resources res = context.getResources();
         TypedArray themes = res.obtainTypedArray(R.array.themes);
         return themes.getResourceId(ndx, R.array.dark_theme);
