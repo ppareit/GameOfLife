@@ -28,6 +28,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
@@ -51,7 +52,7 @@ public class GameOfLifeView extends GameLoopView
         ZOOMING,
     }
     
-    private State mState = State.EDITING;
+    private State mState = State.MOVING;
 
     private static GameOfLife mGameOfLife = null;
     
@@ -60,8 +61,15 @@ public class GameOfLifeView extends GameLoopView
     private Drawable mLiveCell = null;
     private Drawable mDeadCell = null;
     
+    // this object detects move and single tap events
+    private GestureDetector mMoveDetector;
+    
+    // this object detects move events, and continuously toggles cell state
+    private EditListner mEditListner;
+    
     private int mXOffset = 0;
     private int mYOffset = 0;
+    
     private int mCellSize = 0;
     
     // this object can detect pinch to zoom touch events
@@ -86,6 +94,9 @@ public class GameOfLifeView extends GameLoopView
         
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.registerOnSharedPreferenceChangeListener(this);
+
+        mEditListner = new EditListner();
+        mMoveDetector = new GestureDetector(context, new MoveListner());
         
         // construct the pinch to zoom detector with our own callback
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListner());
@@ -189,13 +200,79 @@ public class GameOfLifeView extends GameLoopView
         super.onSizeChanged(w, h, oldw, oldh);
     }
     
+    private class MoveListner extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2,
+                float distanceX, float distanceY) {
+            mXOffset -= distanceX;
+            mYOffset -= distanceY;
+            return true;
+        }
+
+        /**
+         * Even in the MOVING state we provide some editing, this by single tapping
+         */
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            final int x = (int)e.getX();
+            final int y = (int)e.getY();
+            final int cols = mGameOfLife.getCols();
+            final int rows = mGameOfLife.getRows();
+            final int size = (int)(mCellSize*mScaleFactor);
+            
+            if (x <= mXOffset || mXOffset + cols*size <= x) return false;
+            if (y <= mYOffset || mYOffset + rows*size <= y) return false;
+
+            int c = ((x - mXOffset)/size) % cols;
+            int r = ((y - mYOffset)/size) % rows;
+            
+            mGameOfLife.getGrid()[r][c] = ( mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
+            
+            return true;
+        }
+        
+    }
     
-    private static final int INVALID_POINTER_ID = -1;
-    
-    private int mActivePointerId = INVALID_POINTER_ID;
-    private int mPreviousPanX;
-    private int mPreviousPanY;
-    
+    private class EditListner{
+
+        public void onTouchEvent(MotionEvent event) {
+            int historySize = event.getHistorySize();
+            for (int h = 0; h < historySize; ++h) {
+                doEdit((int)event.getHistoricalX(h), (int)event.getHistoricalY(h));
+            }
+            doEdit((int)event.getX(), (int)event.getY());
+        }
+        
+        private int mPreviousFlippedRow = -1;
+        private int mPreviousFlippedCol = -1;
+        private long mPreviousFlippedTime = 0;
+        
+        private void doEdit(int x, int y) {
+            
+            final int cols = mGameOfLife.getCols();
+            final int rows = mGameOfLife.getRows();
+            final int size = (int)(mCellSize*mScaleFactor);
+            
+            if (x <= mXOffset || mXOffset + cols*size <= x) return;
+            if (y <= mYOffset || mYOffset + rows*size <= y) return;
+
+            int c = ((x - mXOffset)/size) % cols;
+            int r = ((y - mYOffset)/size) % rows;
+            
+            if (mPreviousFlippedCol == c && mPreviousFlippedRow == r &&
+                    mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
+                return;
+            } else {
+                mPreviousFlippedCol = c;
+                mPreviousFlippedRow = r;
+                mPreviousFlippedTime = System.currentTimeMillis();
+            }
+
+            mGameOfLife.getGrid()[r][c] = ( mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
+        }
+
+    }
     
     /**
      * Callback for the ScaleGestureDetector
@@ -211,7 +288,7 @@ public class GameOfLifeView extends GameLoopView
             mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor, 5.f));
             
             // zoom from the center of the screen
-            // TODO: it is beter to zoom from the center of the two fingers 
+            // TODO: it is better to zoom from the center of the two fingers 
             mXOffset += mGameOfLife.getCols()*mCellSize*(oldScaleFactor - mScaleFactor)/2;
             mYOffset += mGameOfLife.getRows()*mCellSize*(oldScaleFactor - mScaleFactor)/2;
             
@@ -226,66 +303,17 @@ public class GameOfLifeView extends GameLoopView
         case RUNNING:
             return false;
         case EDITING:
-            int historySize = event.getHistorySize();
-            for (int h = 0; h < historySize; ++h) {
-                doEdit((int)event.getHistoricalX(h), (int)event.getHistoricalY(h));
-            }
-            doEdit((int)event.getX(), (int)event.getY());
+            
+            mEditListner.onTouchEvent(event);
             break;
         case MOVING:
-            // give the pinch to zoom detector the event
+            // give the pinch to zoom detector the event and possible stop here
             mScaleDetector.onTouchEvent(event);
             if (mScaleDetector.isInProgress()) break;
             
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN: {
-                mPreviousPanX = (int)event.getX();
-                mPreviousPanY = (int)event.getY();
-                mActivePointerId = event.getPointerId(0);
-                break;
-            }
-            case MotionEvent.ACTION_MOVE: {
-                final int ndx = event.findPointerIndex(mActivePointerId);
-                if (ndx == -1) {
-                    mActivePointerId = INVALID_POINTER_ID;
-                    return false;
-                }
-                
-                final int x = (int)event.getX(ndx);
-                final int y = (int)event.getY(ndx);
-                
-                mXOffset += (x - mPreviousPanX);
-                mYOffset += (y - mPreviousPanY);
-
-                mPreviousPanX = x;
-                mPreviousPanY = y;
-                break;
-            }
-            case MotionEvent.ACTION_UP: {
-                mActivePointerId = INVALID_POINTER_ID;
-                break;
-            } 
-            case MotionEvent.ACTION_CANCEL: {
-                mActivePointerId = INVALID_POINTER_ID;
-                break;
-            }
-            case MotionEvent.ACTION_POINTER_UP: {
-                final int action = event.getAction();
-                final int mask = MotionEvent.ACTION_POINTER_INDEX_MASK;
-                final int shift = MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-                final int ndx = (action & mask) >> shift;
+            // give the gesture detector the event
+            mMoveDetector.onTouchEvent(event);
             
-                final int pid = event.getPointerId(ndx);
-                
-                if (pid == mActivePointerId) {
-                    final int newPointerIndex = (pid == 0) ? 1 : 0;
-                    mPreviousPanX = (int)event.getX(newPointerIndex);
-                    mPreviousPanY = (int)event.getY(newPointerIndex);
-                    mActivePointerId = event.getPointerId(newPointerIndex);
-                }
-                break;
-            }
-            }
             break;
         }
 
@@ -293,34 +321,6 @@ public class GameOfLifeView extends GameLoopView
         return true;
     }
     
-    private int mPreviousFlippedRow = -1;
-    private int mPreviousFlippedCol = -1;
-    private long mPreviousFlippedTime = 0;
-    
-    private void doEdit(int x, int y) {
-        
-        final int cols = mGameOfLife.getCols();
-        final int rows = mGameOfLife.getRows();
-        final int size = (int)(mCellSize*mScaleFactor);
-        
-        if (x <= mXOffset || mXOffset + cols*size <= x) return;
-        if (y <= mYOffset || mYOffset + rows*size <= y) return;
-
-        int c = ((x - mXOffset)/size) % cols;
-        int r = ((y - mYOffset)/size) % rows;
-        
-        if (mPreviousFlippedCol == c && mPreviousFlippedRow == r &&
-                mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
-            return;
-        } else {
-            mPreviousFlippedCol = c;
-            mPreviousFlippedRow = r;
-            mPreviousFlippedTime = System.currentTimeMillis();
-        }
-
-        mGameOfLife.getGrid()[r][c] = ( mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
-    }
-
     public void clearGrid() {
         mGameOfLife.resetGrid();
         invalidate();

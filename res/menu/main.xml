@@ -1,45 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/start"
-        android:title="@string/start_label"
-        android:icon="@android:drawable/ic_media_play"
-        android:showAsAction="ifRoom|withText"
-    />
-    <item android:id="@+id/pause"
-        android:title="@string/pause_label"
-        android:icon="@android:drawable/ic_media_pause"
-        android:showAsAction="ifRoom|withText"
-    />
-    <item android:id="@+id/control_mode"
-            android:title="@string/edit_label"
-            android:icon="@android:drawable/ic_menu_edit"
-            android:showAsAction="always|withText">
-        <menu>
-		    <group android:id="@+id/control_mode_group"
-		            android:checkableBehavior="single">
-			    <item android:id="@+id/edit"
-			        android:title="@string/edit_label"
-			        android:icon="@android:drawable/ic_menu_edit"
-			        android:checked="true"
-			    />
-			    <item android:id="@+id/move"
-			        android:title="@string/move_label"
-			        android:icon="@android:drawable/ic_menu_mylocation"
-			    />
+	<item android:id="@+id/start" android:title="@string/start_label"
+		android:icon="@android:drawable/ic_media_play" android:showAsAction="ifRoom|withText" />
+	<item android:id="@+id/pause" android:title="@string/pause_label"
+		android:icon="@android:drawable/ic_media_pause" android:showAsAction="ifRoom|withText" />
+	<item android:id="@+id/control_mode" android:title="@string/move_label"
+		android:icon="@android:drawable/ic_menu_mylocation" android:showAsAction="always|withText">
+		<menu>
+			<group android:id="@+id/control_mode_group"
+				android:checkableBehavior="single">
+				<item android:id="@+id/move" android:title="@string/move_label"
+					android:icon="@android:drawable/ic_menu_mylocation" android:checked="true" />
+				<item android:id="@+id/edit" android:title="@string/edit_label"
+					android:icon="@android:drawable/ic_menu_edit" />
+			    
 		    </group>
-	    </menu>
-    </item>
-    <item android:id="@+id/clear"
-        android:title="@string/clear_label"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        android:showAsAction="always|withText"
-    />
-    <item android:id="@+id/settings"
-        android:title="@string/settings_label"
-        android:alphabeticShortcut="@string/settings_shortcut"
-        android:icon="@android:drawable/ic_menu_preferences"
-    />
-    <item android:id="@+id/about"
-        android:title="@string/about_label"
-    />
+		</menu>
+	</item>
+	<item android:id="@+id/clear" android:title="@string/clear_label"
+		android:icon="@android:drawable/ic_menu_close_clear_cancel"
+		android:showAsAction="always|withText" />
+	<item android:id="@+id/settings" android:title="@string/settings_label"
+		android:alphabeticShortcut="@string/settings_shortcut" android:icon="@android:drawable/ic_menu_preferences" />
+	<item android:id="@+id/about" android:title="@string/about_label" />
 </menu>
