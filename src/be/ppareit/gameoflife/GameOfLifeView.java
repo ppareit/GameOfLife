@@ -63,6 +63,13 @@ public class GameOfLifeView extends GameLoopView
     private int mXOffset = 0;
     private int mYOffset = 0;
     private int mCellSize = 0;
+    
+    // this object can detect pinch to zoom touch events
+    private ScaleGestureDetector mScaleDetector;
+    
+    // zoom factor of the display
+    private float mScaleFactor = 1.f;
+
 
     public GameOfLifeView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -80,6 +87,7 @@ public class GameOfLifeView extends GameLoopView
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.registerOnSharedPreferenceChangeListener(this);
         
+        // construct the pinch to zoom detector with our own callback
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListner());
 
         initTheme(context);
@@ -188,9 +196,10 @@ public class GameOfLifeView extends GameLoopView
     private int mPreviousPanX;
     private int mPreviousPanY;
     
-    private ScaleGestureDetector mScaleDetector;
-    private float mScaleFactor = 1.f;
     
+    /**
+     * Callback for the ScaleGestureDetector
+     */
     private class ScaleListner extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
@@ -199,14 +208,15 @@ public class GameOfLifeView extends GameLoopView
             final float oldScaleFactor = mScaleFactor;
             
             mScaleFactor *= factor;
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.f));
+            mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor, 5.f));
             
+            // zoom from the center of the screen
+            // TODO: it is beter to zoom from the center of the two fingers 
             mXOffset += mGameOfLife.getCols()*mCellSize*(oldScaleFactor - mScaleFactor)/2;
             mYOffset += mGameOfLife.getRows()*mCellSize*(oldScaleFactor - mScaleFactor)/2;
             
             return true;
         }
-        
     }
 
     @Override
@@ -223,6 +233,7 @@ public class GameOfLifeView extends GameLoopView
             doEdit((int)event.getX(), (int)event.getY());
             break;
         case MOVING:
+            // give the pinch to zoom detector the event
             mScaleDetector.onTouchEvent(event);
             if (mScaleDetector.isInProgress()) break;
             
