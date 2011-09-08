@@ -40,6 +40,7 @@ import android.view.SurfaceView;
  * 
  */
 public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.Callback {
+    private static final String TAG = GameLoopView.class.getSimpleName();
 
     class AnimationThread extends Thread {
         
@@ -65,6 +66,13 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
         
         @Override
         public void run() {
+            Log.d(TAG, "AnimationThread.run'ing");
+            
+            // block until the surface is completely created in the main thread
+            while (! surfaceCreatedCompleted) {
+            }
+            
+            // run the gameloop
             while (mRun) {
                 onUpdate();
                 Canvas canvas = null;
@@ -72,7 +80,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
                     canvas = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
                         onDraw(canvas);
-                        //drawFps(canvas);
+                        drawFps(canvas);
                     }
                 } finally {
                         mSurfaceHolder.unlockCanvasAndPost(canvas);
@@ -80,11 +88,17 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
                 sleepIfNeeded();
                 updateFps();
             }
+            Log.d(TAG, "AnimationThread.run'ed");
         }
         
         private long mNextGameTick = System.currentTimeMillis();
         
+        /**
+         * Will only sleep if we need to limit the frame rate to a certain number.
+         */
         private void sleepIfNeeded() {
+            if (mTargetFps <= 0) return;
+            
             mNextGameTick += 1000 / mTargetFps;
             long sleepTime = mNextGameTick - System.currentTimeMillis();
             if (sleepTime >= 0) {
@@ -130,7 +144,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
     }
     
     private AnimationThread mThread;
-    private int mTargetFps = 10;
+    private int mTargetFps = 0;
     
     public GameLoopView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -140,15 +154,24 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
         setFocusable(true);
     }
     
+    /**
+     * Will start a seperate thread that runs the game loop. From within this will
+     * call onUpdate() and onDraw().
+     */
     public void startGameLoop() {
+        Log.d(TAG, "startGameLoop'ing");
         // if thread exists, the gameloop is running
         if (mThread == null) {
             mThread = new AnimationThread(getHolder());
             mThread.setRunning(true);
             mThread.start();
         }
+        Log.d(TAG, "startGameLoop'ed");
     }
     
+    /**
+     * Pauses the gameloop, this can be restared with startGameLoop().
+     */
     public void pauseGameLoop() {
         // only pause a gameloop that is running
         if (mThread != null) {
@@ -171,7 +194,8 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
      * Set's the frame rate at which the game loop should run. Be conservative and
      * implement an efficient onUpate()/onDraw() so this frame rate can be maintaned. 
      * 
-     * @param fps The frame rate at which the game loop should run.
+     * @param fps The frame rate at which the game loop should run, set to zero to
+     *              run as fast as possible.
      */
     public void setTargetFps(int fps) {
         mTargetFps = fps;
@@ -181,9 +205,14 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         
     }
+    
+    /* keeps track if the surface is completely created, the gameloop can only
+     * run if we have a surface, so the gameloop thread has to block until so */
+    private volatile boolean surfaceCreatedCompleted = false;
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.d(TAG, "surfaceCreated'ing");
         Canvas canvas = null;
         try {
             canvas = holder.lockCanvas();
@@ -193,6 +222,8 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
         } finally {
             holder.unlockCanvasAndPost(canvas);
         }
+        surfaceCreatedCompleted = true;
+        Log.d(TAG,"surfaceCreated'ed");
     }
 
     @Override
@@ -214,8 +245,14 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
         }
     }
 
+    /**
+     * Override this to implement the game logic.
+     */
     abstract protected void onUpdate();
     
+    /**
+     * Override this to de the drawing.
+     */
     abstract protected void onDraw(Canvas canvas);
 
 }
