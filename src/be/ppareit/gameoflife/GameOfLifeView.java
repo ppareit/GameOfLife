@@ -49,7 +49,6 @@ public class GameOfLifeView extends GameLoopView
         RUNNING,
         EDITING,
         MOVING,
-        ZOOMING,
     }
     
     private State mState = State.MOVING;
@@ -129,9 +128,6 @@ public class GameOfLifeView extends GameLoopView
         } else if (mode == State.MOVING && mState != State.MOVING) {
             pauseGameLoop();
             mState = State.MOVING;
-        } else if (mode == State.ZOOMING && mState != State.ZOOMING) {
-            pauseGameLoop();
-            mState = State.ZOOMING;
         }
     }
 
