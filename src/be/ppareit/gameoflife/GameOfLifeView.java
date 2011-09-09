@@ -70,14 +70,14 @@ public class GameOfLifeView extends GameLoopView
     private int mXOffset = 0;
     private int mYOffset = 0;
     
-    private int mCellSize = 0;
-    
     // this object can detect pinch to zoom touch events
     private ScaleGestureDetector mScaleDetector;
     
-    // zoom factor of the display
+    // strech the blocks to the complete display
+    private float mScaleX = 1.f;
+    private float mScaleY = 1.f;
+    // zooming factor, set with pinch to zoom gesture
     private float mScaleFactor = 1.f;
-
 
     public GameOfLifeView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -117,7 +117,6 @@ public class GameOfLifeView extends GameLoopView
         
         mDeadCell = themeData.getDrawable(1);
         mLiveCell = themeData.getDrawable(2);
-        mCellSize = mLiveCell.getMinimumHeight();
     }
     
     public void setMode(State mode) {
@@ -148,26 +147,21 @@ public class GameOfLifeView extends GameLoopView
         
         canvas.save();
         canvas.translate(mXOffset, mYOffset);
+        canvas.scale(mScaleX*mScaleFactor, mScaleY*mScaleFactor);
         
         final int rows = mGameOfLife.getRows();
         final int cols = mGameOfLife.getCols();
-        final int size = (int)(mCellSize*mScaleFactor);
         
-        canvas.drawRect(0, 0, cols*size, rows*size, mBackgroundPaint);
+        canvas.drawRect(0, 0, cols, rows, mBackgroundPaint);
         
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 
-                int left = (int)(c*size);
-                int top = (int)(r*size);
-                int right = (int)(c*size + size);
-                int bottom = (int)(r*size + size);
-                
                 if (mGameOfLife.getGrid()[r][c] != 0) {
-                    mLiveCell.setBounds(left, top, right, bottom);
+                    mLiveCell.setBounds(c, r, c+1, r+1);
                     mLiveCell.draw(canvas);
                 } else {
-                    mDeadCell.setBounds(left, top, right, bottom);
+                    mDeadCell.setBounds(c, r, c+1, r+1);
                     mDeadCell.draw(canvas);
                 }
                 
@@ -194,10 +188,12 @@ public class GameOfLifeView extends GameLoopView
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mXOffset = (w - mGameOfLife.getCols()*mCellSize) / 2;
-        mYOffset = (h - mGameOfLife.getRows()*mCellSize) / 2;
-
-        super.onSizeChanged(w, h, oldw, oldh);
+        mXOffset = 0;
+        mYOffset = 0;
+        mScaleFactor = 1.f;
+        
+        mScaleX = (float)w/mGameOfLife.getCols();
+        mScaleY = (float)h/mGameOfLife.getRows();
     }
     
     private class MoveListner extends GestureDetector.SimpleOnGestureListener {
@@ -219,13 +215,14 @@ public class GameOfLifeView extends GameLoopView
             final int y = (int)e.getY();
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final int size = (int)(mCellSize*mScaleFactor);
+            final float scaleX = mScaleX*mScaleFactor;
+            final float scaleY = mScaleY*mScaleFactor;
             
-            if (x <= mXOffset || mXOffset + cols*size <= x) return false;
-            if (y <= mYOffset || mYOffset + rows*size <= y) return false;
+            if (x <= mXOffset || mXOffset + cols*scaleX <= x) return false;
+            if (y <= mYOffset || mYOffset + rows*scaleY <= y) return false;
 
-            int c = ((x - mXOffset)/size) % cols;
-            int r = ((y - mYOffset)/size) % rows;
+            int c = (int)((x - mXOffset)/scaleX) % cols;
+            int r = (int)((y - mYOffset)/scaleY) % rows;
             
             mGameOfLife.getGrid()[r][c] = ( mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
             
@@ -252,13 +249,14 @@ public class GameOfLifeView extends GameLoopView
             
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final int size = (int)(mCellSize*mScaleFactor);
+            final float scaleX = mScaleX*mScaleFactor;
+            final float scaleY = mScaleY*mScaleFactor;
             
-            if (x <= mXOffset || mXOffset + cols*size <= x) return;
-            if (y <= mYOffset || mYOffset + rows*size <= y) return;
+            if (x <= mXOffset || mXOffset + cols*scaleX <= x) return;
+            if (y <= mYOffset || mYOffset + rows*scaleY <= y) return;
 
-            int c = ((x - mXOffset)/size) % cols;
-            int r = ((y - mYOffset)/size) % rows;
+            int c = (int)((x - mXOffset)/scaleX) % cols;
+            int r = (int)((y - mYOffset)/scaleY) % rows;
             
             if (mPreviousFlippedCol == c && mPreviousFlippedRow == r &&
                     mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
@@ -285,12 +283,12 @@ public class GameOfLifeView extends GameLoopView
             final float oldScaleFactor = mScaleFactor;
             
             mScaleFactor *= factor;
-            mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor, 5.f));
+            mScaleFactor = Math.max(1.f, Math.min(mScaleFactor, 5.f));
             
             // zoom from the center of the screen
             // TODO: it is better to zoom from the center of the two fingers 
-            mXOffset += mGameOfLife.getCols()*mCellSize*(oldScaleFactor - mScaleFactor)/2;
-            mYOffset += mGameOfLife.getRows()*mCellSize*(oldScaleFactor - mScaleFactor)/2;
+            mXOffset += mGameOfLife.getCols()*(oldScaleFactor - mScaleFactor)/2;
+            mYOffset += mGameOfLife.getRows()*(oldScaleFactor - mScaleFactor)/2;
             
             return true;
         }
