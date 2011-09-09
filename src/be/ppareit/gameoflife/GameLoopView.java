@@ -133,9 +133,8 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
             mLastTime = currentTime;
         }
         
-        @SuppressWarnings("unused")
         private void drawFps(Canvas canvas) {
-            if (mFps != 0) {
+            if (mDrawFps ==true && mFps != 0) {
                 int x = getWidth() - getWidth() / 8;
                 int y = getHeight() - (int)mFpsTextPaint.getTextSize() - 5;
                 canvas.drawText(mFps + " fps", x, y, mFpsTextPaint);
@@ -145,6 +144,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
     
     private AnimationThread mThread;
     private int mTargetFps = 0;
+    private boolean mDrawFps = true;
     
     public GameLoopView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -199,6 +199,15 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
      */
     public void setTargetFps(int fps) {
         mTargetFps = fps;
+    }
+    
+    /**
+     * If set to true, the gameloop will display the fps in the bottom right corner.
+     * 
+     * @param show Flag indicating wheter to show the fps or not. 
+     */
+    public void setDrawFps(boolean show) {
+        mDrawFps  = show;
     }
 
     @Override
