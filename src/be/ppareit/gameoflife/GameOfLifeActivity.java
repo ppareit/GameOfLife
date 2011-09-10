@@ -79,7 +79,7 @@ public class GameOfLifeActivity extends Activity {
             updatePausedMode();
             mPauseMenu.setVisible(false).setEnabled(false);
             mStartMenu.setVisible(true).setEnabled(true);
-            mClearMenu.setEnabled(mEditMenu.isChecked() == true);
+            mClearMenu.setEnabled(true);
             mControlMenu.setEnabled(true);
             return true;
         case R.id.edit:
@@ -87,7 +87,6 @@ public class GameOfLifeActivity extends Activity {
             mControlMenu.setIcon(item.getIcon());
             mControlMenu.setTitle(item.getTitle());
             item.setChecked(true);
-            mClearMenu.setEnabled(item.getItemId()==R.id.edit);
             updatePausedMode();
             return true;
         case R.id.clear:
