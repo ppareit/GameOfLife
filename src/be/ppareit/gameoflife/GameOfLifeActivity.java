@@ -34,6 +34,7 @@ public class GameOfLifeActivity extends Activity {
     private GameOfLifeView mGameOfLifeView;
     
     private MenuItem mStartMenu;
+    private MenuItem mSingleStepMenu;
     private MenuItem mPauseMenu;
     private MenuItem mClearMenu;
     private MenuItem mControlMenu;
@@ -54,6 +55,7 @@ public class GameOfLifeActivity extends Activity {
         inflater.inflate(R.menu.main, menu);
         
         mStartMenu = menu.findItem(R.id.start);
+        mSingleStepMenu = menu.findItem(R.id.single_step);
         mPauseMenu = menu.findItem(R.id.pause);
         mClearMenu = menu.findItem(R.id.clear);
         mControlMenu = menu.findItem(R.id.control_mode);
@@ -72,13 +74,18 @@ public class GameOfLifeActivity extends Activity {
             mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING);
             mClearMenu.setEnabled(false);
             mStartMenu.setVisible(false).setEnabled(false);
+            mSingleStepMenu.setEnabled(false);
             mPauseMenu.setVisible(true).setEnabled(true);
             mControlMenu.setEnabled(false);
+            return true;
+        case R.id.single_step:
+            mGameOfLifeView.doSingleStep();
             return true;
         case R.id.pause:
             updatePausedMode();
             mPauseMenu.setVisible(false).setEnabled(false);
             mStartMenu.setVisible(true).setEnabled(true);
+            mSingleStepMenu.setEnabled(true);
             mClearMenu.setEnabled(true);
             mControlMenu.setEnabled(true);
             return true;

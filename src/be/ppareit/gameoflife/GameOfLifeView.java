@@ -345,7 +345,11 @@ public class GameOfLifeView extends GameLoopView
         mGameOfLife.resetGrid();
         invalidate();
     }
-    
+
+    public void doSingleStep() {
+        mGameOfLife.generateNextGeneration();
+        invalidate();
+    }
     
 }
 
