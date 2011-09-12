@@ -153,7 +153,7 @@ public class GameOfLifeView extends GameLoopView
         canvas.drawRect(0, 0, cols*scaleX, rows*scaleY, mBackgroundPaint);
         
         // addition is faster then multiplication combined with modulo,
-        // so keep track of correct drawing possition and update it every step
+        // so keep track of correct drawing position and update it every step
         float left = mXOffset;
         float top = mYOffset;
         // for all rows and all cols
