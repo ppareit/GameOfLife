@@ -34,8 +34,9 @@ public class GameOfLifeActivity extends Activity {
     private GameOfLifeView mGameOfLifeView;
     
     private MenuItem mStartMenu;
-    private MenuItem mSingleStepMenu;
     private MenuItem mPauseMenu;
+    private MenuItem mUndoMenu;
+    private MenuItem mSingleStepMenu;
     private MenuItem mClearMenu;
     private MenuItem mControlMenu;
     private MenuItem mEditMenu;
@@ -55,14 +56,16 @@ public class GameOfLifeActivity extends Activity {
         inflater.inflate(R.menu.main, menu);
         
         mStartMenu = menu.findItem(R.id.start);
-        mSingleStepMenu = menu.findItem(R.id.single_step);
         mPauseMenu = menu.findItem(R.id.pause);
+        mUndoMenu = menu.findItem(R.id.undo);
+        mSingleStepMenu = menu.findItem(R.id.single_step);
         mClearMenu = menu.findItem(R.id.clear);
         mControlMenu = menu.findItem(R.id.control_mode);
         mEditMenu = menu.findItem(R.id.edit);
         mMoveMenu = menu.findItem(R.id.move);
         
         mPauseMenu.setVisible(false).setEnabled(false);
+        mUndoMenu.setEnabled(false);
         
         return true;
     }
@@ -74,20 +77,27 @@ public class GameOfLifeActivity extends Activity {
             mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING);
             mClearMenu.setEnabled(false);
             mStartMenu.setVisible(false).setEnabled(false);
-            mSingleStepMenu.setEnabled(false);
             mPauseMenu.setVisible(true).setEnabled(true);
+            mUndoMenu.setEnabled(false);
+            mSingleStepMenu.setEnabled(false);
             mControlMenu.setEnabled(false);
-            return true;
-        case R.id.single_step:
-            mGameOfLifeView.doSingleStep();
             return true;
         case R.id.pause:
             updatePausedMode();
             mPauseMenu.setVisible(false).setEnabled(false);
             mStartMenu.setVisible(true).setEnabled(true);
             mSingleStepMenu.setEnabled(true);
+            mUndoMenu.setEnabled(true);
             mClearMenu.setEnabled(true);
             mControlMenu.setEnabled(true);
+            return true;
+        case R.id.undo:
+            mGameOfLifeView.doUndo();
+            mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
+            return true;
+        case R.id.single_step:
+            mGameOfLifeView.doSingleStep();
+            mUndoMenu.setEnabled(true);
             return true;
         case R.id.edit:
         case R.id.move:
@@ -95,9 +105,11 @@ public class GameOfLifeActivity extends Activity {
             mControlMenu.setTitle(item.getTitle());
             item.setChecked(true);
             updatePausedMode();
+            mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
             return true;
         case R.id.clear:
             mGameOfLifeView.clearGrid();
+            mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
             return true;
         case R.id.settings:
             startActivity(new Intent(this, PreferencesActivity.class));
@@ -121,6 +133,12 @@ public class GameOfLifeActivity extends Activity {
     private void updatePausedMode() {
         if (mEditMenu.isChecked()) mGameOfLifeView.setMode(GameOfLifeView.State.EDITING);
         else if (mMoveMenu.isChecked()) mGameOfLifeView.setMode(GameOfLifeView.State.MOVING);
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
     }
     
 }

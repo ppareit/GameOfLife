@@ -4,6 +4,8 @@
     
     <string name="pause_label">Pause</string>
     
+    <string name="undo_label">Undo</string>
+    
     <string name="single_step_label">Single step</string>
     
     <string name="start_label">Start</string>
