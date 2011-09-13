@@ -44,7 +44,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
 
     class AnimationThread extends Thread {
         
-        private boolean mRun;
+        private volatile boolean mRun;
         
         private long mLastTime = System.currentTimeMillis();
         
