@@ -32,22 +32,19 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-
 /**
  * The main view for the Game of Life.
- *
+ * 
  * Responsible for drawing the data. Intercepts touch events. When the mode is set to
  * EDITING, it will add or remove data. When the mode is set to MOVING, panning and
- * zooming is done. When the mode is set to PLAYING, the game loop is started and the
- * data is updated to a new generation at each step.
+ * zooming is done. When the mode is set to PLAYING, the game loop is started and the data
+ * is updated to a new generation at each step.
  */
-public class GameOfLifeView extends GameLoopView
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class GameOfLifeView extends GameLoopView implements
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     public enum State {
-        RUNNING,
-        EDITING,
-        MOVING,
+        RUNNING, EDITING, MOVING,
     }
 
     private State mState = State.MOVING;
@@ -83,8 +80,10 @@ public class GameOfLifeView extends GameLoopView
 
         if (mGameOfLife == null) {
             mGameOfLife = new GameOfLife(35, 65);
-            mGameOfLife.setUnderPopulation(PreferencesActivity.getMinimumVariable(getContext()));
-            mGameOfLife.setOverPopulation(PreferencesActivity.getMaximumVariable(getContext()));
+            mGameOfLife.setUnderPopulation(PreferencesActivity
+                    .getMinimumVariable(getContext()));
+            mGameOfLife.setOverPopulation(PreferencesActivity
+                    .getMaximumVariable(getContext()));
             mGameOfLife.setSpawn(PreferencesActivity.getSpawnVariable(getContext()));
             mGameOfLife.loadGridFromFile(getResources().openRawResource(R.raw.android));
 
@@ -114,7 +113,7 @@ public class GameOfLifeView extends GameLoopView
         mCanvasPaint.setColor(Color.GRAY);
 
         mBackgroundPaint = new Paint();
-        mBackgroundPaint.setColor(themeData.getColor(0,Color.BLACK));
+        mBackgroundPaint.setColor(themeData.getColor(0, Color.BLACK));
 
         mDeadCell = themeData.getDrawable(1);
         mLiveCell = themeData.getDrawable(2);
@@ -150,10 +149,10 @@ public class GameOfLifeView extends GameLoopView
         final int rows = mGameOfLife.getRows();
         final int cols = mGameOfLife.getCols();
 
-        final float scaleX = mScaleX*mScaleFactor;
-        final float scaleY = mScaleY*mScaleFactor;
+        final float scaleX = mScaleX * mScaleFactor;
+        final float scaleY = mScaleY * mScaleFactor;
 
-        canvas.drawRect(0, 0, cols*scaleX, rows*scaleY, mBackgroundPaint);
+        canvas.drawRect(0, 0, cols * scaleX, rows * scaleY, mBackgroundPaint);
 
         // addition is faster then multiplication combined with modulo,
         // so keep track of correct drawing position and update it every step
@@ -163,49 +162,53 @@ public class GameOfLifeView extends GameLoopView
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 // draw the cell
-                final Drawable cell = (mGameOfLife.getGrid()[r][c] != 0) ?
-                        mLiveCell : mDeadCell;
-                cell.setBounds((int)left, (int)top,
-                        (int)(left + scaleX), (int)(top + scaleY));
+                final Drawable cell = (mGameOfLife.getGrid()[r][c] != 0) ? mLiveCell
+                        : mDeadCell;
+                cell.setBounds((int) left, (int) top, (int) (left + scaleX),
+                        (int) (top + scaleY));
                 cell.draw(canvas);
                 // check if at bound
-                if (top + scaleX > rows*scaleY) {
+                if (top + scaleX > rows * scaleY) {
                     // redraw cell, but at bottom
-                    cell.setBounds((int)left, (int)(top-rows*scaleY),
-                            (int)(left + scaleX), (int)(top-rows*scaleY+scaleY));
+                    cell.setBounds((int) left, (int) (top - rows * scaleY),
+                            (int) (left + scaleX), (int) (top - rows * scaleY + scaleY));
                     cell.draw(canvas);
                 }
                 // reposition left
                 left += scaleX;
                 // if going over the edge
-                if (left > cols*scaleX) {
+                if (left > cols * scaleX) {
                     // reposition
-                    left -= cols*scaleX;
+                    left -= cols * scaleX;
                     // draw an extra cell to the left
-                    cell.setBounds((int)(left - scaleX), (int)top,
-                            (int)left, (int)(top + scaleY));
+                    cell.setBounds((int) (left - scaleX), (int) top, (int) left,
+                            (int) (top + scaleY));
                     cell.draw(canvas);
                     // if in left bottom corner
-                    if (top + scaleY > rows*scaleY) {
+                    if (top + scaleY > rows * scaleY) {
                         // draw an extra cell in the left top corner
-                        cell.setBounds((int)(left - scaleX), (int)(top - rows*scaleY),
-                                (int)left, (int)(top-rows*scaleY+scaleY));
+                        cell.setBounds((int) (left - scaleX),
+                                (int) (top - rows * scaleY), (int) left, (int) (top
+                                        - rows * scaleY + scaleY));
                         cell.draw(canvas);
                     }
                 }
             }
             left = mXOffset;
             top += scaleY;
-            if (top > rows*scaleY) top -= rows*scaleY;
+            if (top > rows * scaleY)
+                top -= rows * scaleY;
         }
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("UNDERPOPULATION_VARIABLE")) {
-            mGameOfLife.setUnderPopulation(PreferencesActivity.getMinimumVariable(getContext()));
+            mGameOfLife.setUnderPopulation(PreferencesActivity
+                    .getMinimumVariable(getContext()));
         } else if (key.equals("OVERPOPULATION_VARIABLE")) {
-            mGameOfLife.setOverPopulation(PreferencesActivity.getMaximumVariable(getContext()));
+            mGameOfLife.setOverPopulation(PreferencesActivity
+                    .getMaximumVariable(getContext()));
         } else if (key.equals("SPAWN_VARIABLE")) {
             mGameOfLife.setSpawn(PreferencesActivity.getSpawnVariable(getContext()));
         } else if (key.equals("ANIMATION_SPEED")) {
@@ -221,20 +224,20 @@ public class GameOfLifeView extends GameLoopView
         mYOffset = 0;
         mScaleFactor = 1.f;
 
-        mScaleX = (float)w/mGameOfLife.getCols();
-        mScaleY = (float)h/mGameOfLife.getRows();
+        mScaleX = (float) w / mGameOfLife.getCols();
+        mScaleY = (float) h / mGameOfLife.getRows();
 
     }
 
     private class MoveListner extends GestureDetector.SimpleOnGestureListener {
 
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2,
-                float distanceX, float distanceY) {
-            final int width = (int)(mGameOfLife.getCols()*mScaleX*mScaleFactor);
-            final int height = (int)(mGameOfLife.getRows()*mScaleY*mScaleFactor);
-            mXOffset = (int)(mXOffset - distanceX + width) % width;
-            mYOffset = (int)(mYOffset - distanceY + height) % height;
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+                float distanceY) {
+            final int width = (int) (mGameOfLife.getCols() * mScaleX * mScaleFactor);
+            final int height = (int) (mGameOfLife.getRows() * mScaleY * mScaleFactor);
+            mXOffset = (int) (mXOffset - distanceX + width) % width;
+            mYOffset = (int) (mYOffset - distanceY + height) % height;
             return true;
         }
 
@@ -243,34 +246,34 @@ public class GameOfLifeView extends GameLoopView
          */
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            final int x = (int)e.getX();
-            final int y = (int)e.getY();
+            final int x = (int) e.getX();
+            final int y = (int) e.getY();
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final float scaleX = mScaleX*mScaleFactor;
-            final float scaleY = mScaleY*mScaleFactor;
+            final float scaleX = mScaleX * mScaleFactor;
+            final float scaleY = mScaleY * mScaleFactor;
 
-            int c = (int)((x - mXOffset + cols*scaleX)/scaleX) % cols;
-            int r = (int)((y - mYOffset + rows*scaleY)/scaleY) % rows;
+            int c = (int) ((x - mXOffset + cols * scaleX) / scaleX) % cols;
+            int r = (int) ((y - mYOffset + rows * scaleY) / scaleY) % rows;
 
             mUndoManager.pushState();
 
-            mGameOfLife.getGrid()[r][c] = ( mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
+            mGameOfLife.getGrid()[r][c] = (mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
 
             return true;
         }
 
     }
 
-    private class EditListner{
+    private class EditListner {
 
         public void onTouchEvent(MotionEvent event) {
             mUndoManager.pushState();
             int historySize = event.getHistorySize();
             for (int h = 0; h < historySize; ++h) {
-                doEdit((int)event.getHistoricalX(h), (int)event.getHistoricalY(h));
+                doEdit((int) event.getHistoricalX(h), (int) event.getHistoricalY(h));
             }
-            doEdit((int)event.getX(), (int)event.getY());
+            doEdit((int) event.getX(), (int) event.getY());
         }
 
         private int mPreviousFlippedRow = -1;
@@ -281,14 +284,14 @@ public class GameOfLifeView extends GameLoopView
 
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final float scaleX = mScaleX*mScaleFactor;
-            final float scaleY = mScaleY*mScaleFactor;
+            final float scaleX = mScaleX * mScaleFactor;
+            final float scaleY = mScaleY * mScaleFactor;
 
-            int c = (int)((x - mXOffset + cols*scaleX)/scaleX) % cols;
-            int r = (int)((y - mYOffset + rows*scaleY)/scaleY) % rows;
+            int c = (int) ((x - mXOffset + cols * scaleX) / scaleX) % cols;
+            int r = (int) ((y - mYOffset + rows * scaleY) / scaleY) % rows;
 
-            if (mPreviousFlippedCol == c && mPreviousFlippedRow == r &&
-                    mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
+            if (mPreviousFlippedCol == c && mPreviousFlippedRow == r
+                    && mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
                 return;
             } else {
                 mPreviousFlippedCol = c;
@@ -296,7 +299,7 @@ public class GameOfLifeView extends GameLoopView
                 mPreviousFlippedTime = System.currentTimeMillis();
             }
 
-            mGameOfLife.getGrid()[r][c] = ( mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
+            mGameOfLife.getGrid()[r][c] = (mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
         }
 
     }
@@ -316,8 +319,8 @@ public class GameOfLifeView extends GameLoopView
 
             // zoom from the center of the screen
             // TODO: it is better to zoom from the center of the two fingers
-            mXOffset += mGameOfLife.getCols()*(oldScaleFactor - mScaleFactor)/2;
-            mYOffset += mGameOfLife.getRows()*(oldScaleFactor - mScaleFactor)/2;
+            mXOffset += mGameOfLife.getCols() * (oldScaleFactor - mScaleFactor) / 2;
+            mYOffset += mGameOfLife.getRows() * (oldScaleFactor - mScaleFactor) / 2;
 
             return true;
         }
@@ -336,7 +339,8 @@ public class GameOfLifeView extends GameLoopView
         case MOVING:
             // give the pinch to zoom detector the event and possible stop here
             mScaleDetector.onTouchEvent(event);
-            if (mScaleDetector.isInProgress()) break;
+            if (mScaleDetector.isInProgress())
+                break;
 
             // give the gesture detector the event
             mMoveDetector.onTouchEvent(event);
@@ -370,32 +374,3 @@ public class GameOfLifeView extends GameLoopView
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
