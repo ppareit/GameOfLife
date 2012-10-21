@@ -316,17 +316,18 @@ public class GameOfLifeView extends GameLoopView implements
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            final float factor = detector.getScaleFactor();
-            final float oldScaleFactor = mScaleFactor;
-
-            mScaleFactor *= factor;
-            mScaleFactor = Math.max(1.f, Math.min(mScaleFactor, 5.f));
-
-            // zoom from the center of the screen
-            // TODO: it is better to zoom from the center of the two fingers
-            mXOffset += mGameOfLife.getCols() * (oldScaleFactor - mScaleFactor) / 2;
-            mYOffset += mGameOfLife.getRows() * (oldScaleFactor - mScaleFactor) / 2;
-
+            /*
+             * final float factor = detector.getScaleFactor(); final float oldScaleFactor
+             * = mScaleFactor;
+             * 
+             * mScaleFactor *= factor; mScaleFactor = Math.max(1.f, Math.min(mScaleFactor,
+             * 5.f));
+             * 
+             * // zoom from the center of the screen // TODO: it is better to zoom from
+             * the center of the two fingers mXOffset += mGameOfLife.getCols() *
+             * (oldScaleFactor - mScaleFactor) / 2; mYOffset += mGameOfLife.getRows() *
+             * (oldScaleFactor - mScaleFactor) / 2;
+             */
             return true;
         }
     }
