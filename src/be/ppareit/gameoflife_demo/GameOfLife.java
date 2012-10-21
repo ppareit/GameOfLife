@@ -16,7 +16,7 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife;
+package be.ppareit.gameoflife_demo;
 
 import java.io.BufferedReader;
 import java.io.IOException;

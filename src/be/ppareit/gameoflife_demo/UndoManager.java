@@ -1,4 +1,4 @@
-package be.ppareit.gameoflife;
+package be.ppareit.gameoflife_demo;
 
 import java.util.ArrayList;
 import java.util.List;
