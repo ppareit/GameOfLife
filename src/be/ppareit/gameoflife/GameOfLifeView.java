@@ -31,6 +31,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.WindowManager;
 
 /**
  * The main view for the Game of Life.
@@ -79,7 +80,11 @@ public class GameOfLifeView extends GameLoopView implements
         super(context, attrs);
 
         if (mGameOfLife == null) {
-            mGameOfLife = new GameOfLife(35, 65);
+            WindowManager wm = (WindowManager) getContext().getSystemService(
+                    Context.WINDOW_SERVICE);
+            int rows = wm.getDefaultDisplay().getHeight() / 40;
+            int cols = wm.getDefaultDisplay().getWidth() / 40;
+            mGameOfLife = new GameOfLife(rows, cols);
             mGameOfLife.setUnderPopulation(PreferencesActivity
                     .getMinimumVariable(getContext()));
             mGameOfLife.setOverPopulation(PreferencesActivity
