@@ -26,52 +26,53 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-
 /**
- * This class contains all logic related to running a game loop.<p>
+ * This class contains all logic related to running a game loop.
+ * <p>
  * 
- * This class must be extended by your game. All game logic should happen in
- * onUpdate(). All drawing should happen in onDraw(). The game loop is started with
- * startGameLoop() and stopped with pauseGameLoop(). When the game loop is paused, and
- * the screen needs to be refreshed, call invalidate(). <p>
+ * This class must be extended by your game. All game logic should happen in onUpdate().
+ * All drawing should happen in onDraw(). The game loop is started with startGameLoop()
+ * and stopped with pauseGameLoop(). When the game loop is paused, and the screen needs to
+ * be refreshed, call invalidate().
+ * <p>
  * 
- * While part of GameOfLife, this class can be reused in other applications that need
- * a view containing a game loop and the related logic.
+ * While part of GameOfLife, this class can be reused in other applications that need a
+ * view containing a game loop and the related logic.
  * 
  */
 public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = GameLoopView.class.getSimpleName();
 
     class AnimationThread extends Thread {
-        
+
         private volatile boolean mRun;
-        
+
         private long mLastTime = System.currentTimeMillis();
-        
+
         private int mFrameSamplesCollected = 0;
         private int mFrameSampleTime = 0;
         private int mFps = 0;
-        
+
         private SurfaceHolder mSurfaceHolder;
-        
+
         private Paint mFpsTextPaint;
-        
+
         public AnimationThread(SurfaceHolder surfaceHolder) {
             mSurfaceHolder = surfaceHolder;
-            
+
             mFpsTextPaint = new Paint();
             mFpsTextPaint.setARGB(255, 255, 0, 0);
             mFpsTextPaint.setTextSize(32);
         }
-        
+
         @Override
         public void run() {
             Log.d(TAG, "AnimationThread.run'ing");
-            
+
             // block until the surface is completely created in the main thread
-            while (! surfaceCreatedCompleted) {
+            while (!surfaceCreatedCompleted) {
             }
-            
+
             // run the gameloop
             while (mRun) {
                 onUpdate();
@@ -83,22 +84,23 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
                         drawFps(canvas);
                     }
                 } finally {
-                        mSurfaceHolder.unlockCanvasAndPost(canvas);
+                    mSurfaceHolder.unlockCanvasAndPost(canvas);
                 }
                 sleepIfNeeded();
                 updateFps();
             }
             Log.d(TAG, "AnimationThread.run'ed");
         }
-        
+
         private long mNextGameTick = System.currentTimeMillis();
-        
+
         /**
          * Will only sleep if we need to limit the frame rate to a certain number.
          */
         private void sleepIfNeeded() {
-            if (mTargetFps <= 0) return;
-            
+            if (mTargetFps <= 0)
+                return;
+
             mNextGameTick += 1000 / mTargetFps;
             long sleepTime = mNextGameTick - System.currentTimeMillis();
             if (sleepTime >= 0) {
@@ -111,52 +113,52 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
                 Log.i("GameLoopView", "Failed to reach expected FPS!");
             }
         }
-        
+
         public void setRunning(boolean state) {
             mRun = state;
         }
-        
+
         private void updateFps() {
             long currentTime = System.currentTimeMillis();
-            
-            int timeDifference = (int)(currentTime - mLastTime);
+
+            int timeDifference = (int) (currentTime - mLastTime);
             mFrameSampleTime += timeDifference;
             mFrameSamplesCollected++;
-            
+
             if (mFrameSamplesCollected == 10) {
-                mFps = (int)((10*1000) / mFrameSampleTime);
-                
+                mFps = (int) ((10 * 1000) / mFrameSampleTime);
+
                 mFrameSampleTime = 0;
                 mFrameSamplesCollected = 0;
             }
-            
+
             mLastTime = currentTime;
         }
-        
+
         private void drawFps(Canvas canvas) {
-            if (mDrawFps ==true && mFps != 0) {
+            if (mDrawFps == true && mFps != 0) {
                 int x = getWidth() - getWidth() / 8;
-                int y = getHeight() - (int)mFpsTextPaint.getTextSize() - 5;
+                int y = getHeight() - (int) mFpsTextPaint.getTextSize() - 5;
                 canvas.drawText(mFps + " fps", x, y, mFpsTextPaint);
             }
         }
     }
-    
+
     private AnimationThread mThread;
     private int mTargetFps = 0;
-    private boolean mDrawFps = true;
-    
+    private boolean mDrawFps = false;
+
     public GameLoopView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        
+
         getHolder().addCallback(this);
 
         setFocusable(true);
     }
-    
+
     /**
-     * Will start a seperate thread that runs the game loop. From within this will
-     * call onUpdate() and onDraw().
+     * Will start a seperate thread that runs the game loop. From within this will call
+     * onUpdate() and onDraw().
      */
     public void startGameLoop() {
         Log.d(TAG, "startGameLoop'ing");
@@ -168,7 +170,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
         }
         Log.d(TAG, "startGameLoop'ed");
     }
-    
+
     /**
      * Pauses the gameloop, this can be restared with startGameLoop().
      */
@@ -189,34 +191,37 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
         }
     }
 
-    
     /**
      * Set's the frame rate at which the game loop should run. Be conservative and
-     * implement an efficient onUpate()/onDraw() so this frame rate can be maintaned. 
+     * implement an efficient onUpate()/onDraw() so this frame rate can be maintaned.
      * 
-     * @param fps The frame rate at which the game loop should run, set to zero to
-     *              run as fast as possible.
+     * @param fps
+     *            The frame rate at which the game loop should run, set to zero to run as
+     *            fast as possible.
      */
     public void setTargetFps(int fps) {
         mTargetFps = fps;
     }
-    
+
     /**
      * If set to true, the gameloop will display the fps in the bottom right corner.
      * 
-     * @param show Flag indicating wheter to show the fps or not. 
+     * @param show
+     *            Flag indicating wheter to show the fps or not.
      */
     public void setDrawFps(boolean show) {
-        mDrawFps  = show;
+        mDrawFps = show;
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        
+
     }
-    
-    /* keeps track if the surface is completely created, the gameloop can only
-     * run if we have a surface, so the gameloop thread has to block until so */
+
+    /*
+     * keeps track if the surface is completely created, the gameloop can only run if we
+     * have a surface, so the gameloop thread has to block until so
+     */
     private volatile boolean surfaceCreatedCompleted = false;
 
     @Override
@@ -232,14 +237,14 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
             holder.unlockCanvasAndPost(canvas);
         }
         surfaceCreatedCompleted = true;
-        Log.d(TAG,"surfaceCreated'ed");
+        Log.d(TAG, "surfaceCreated'ed");
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        
+
     }
-    
+
     @Override
     public void invalidate() {
         SurfaceHolder holder = getHolder();
@@ -258,26 +263,10 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
      * Override this to implement the game logic.
      */
     abstract protected void onUpdate();
-    
+
     /**
      * Override this to de the drawing.
      */
     abstract protected void onDraw(Canvas canvas);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
