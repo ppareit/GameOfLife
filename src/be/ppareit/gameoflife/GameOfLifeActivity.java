@@ -32,7 +32,7 @@ import android.view.MenuItem;
 public class GameOfLifeActivity extends Activity {
 
     private GameOfLifeView mGameOfLifeView;
-    
+
     private MenuItem mStartMenu;
     private MenuItem mPauseMenu;
     private MenuItem mUndoMenu;
@@ -41,20 +41,20 @@ public class GameOfLifeActivity extends Activity {
     private MenuItem mControlMenu;
     private MenuItem mEditMenu;
     private MenuItem mMoveMenu;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        mGameOfLifeView = (GameOfLifeView)findViewById(R.id.gameoflife_view);
+        mGameOfLifeView = (GameOfLifeView) findViewById(R.id.gameoflife_view);
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        
+
         mStartMenu = menu.findItem(R.id.start);
         mPauseMenu = menu.findItem(R.id.pause);
         mUndoMenu = menu.findItem(R.id.undo);
@@ -63,10 +63,10 @@ public class GameOfLifeActivity extends Activity {
         mControlMenu = menu.findItem(R.id.control_mode);
         mEditMenu = menu.findItem(R.id.edit);
         mMoveMenu = menu.findItem(R.id.move);
-        
+
         mPauseMenu.setVisible(false).setEnabled(false);
         mUndoMenu.setEnabled(false);
-        
+
         return true;
     }
 
@@ -129,10 +129,12 @@ public class GameOfLifeActivity extends Activity {
         mPauseMenu.setVisible(false).setEnabled(false);
         mStartMenu.setVisible(true).setEnabled(true);
     }
-    
+
     private void updatePausedMode() {
-        if (mEditMenu.isChecked()) mGameOfLifeView.setMode(GameOfLifeView.State.EDITING);
-        else if (mMoveMenu.isChecked()) mGameOfLifeView.setMode(GameOfLifeView.State.MOVING);
+        if (mEditMenu.isChecked())
+            mGameOfLifeView.setMode(GameOfLifeView.State.EDITING);
+        else if (mMoveMenu.isChecked())
+            mGameOfLifeView.setMode(GameOfLifeView.State.MOVING);
     }
 
     @Override
@@ -140,5 +142,5 @@ public class GameOfLifeActivity extends Activity {
         super.onUserInteraction();
         mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
     }
-    
+
 }
