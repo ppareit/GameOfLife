@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/start" android:title="@string/start_label"
-		android:icon="@android:drawable/ic_media_play" android:showAsAction="ifRoom|withText" />
+		android:icon="@android:drawable/ic_media_play" android:showAsAction="always" />
 	<item android:id="@+id/pause" android:title="@string/pause_label"
-		android:icon="@android:drawable/ic_media_pause" android:showAsAction="ifRoom|withText" />
+		android:icon="@android:drawable/ic_media_pause" android:showAsAction="always" />
 	<item android:id="@+id/undo" android:title="@string/undo_label"
 	    android:icon="@android:drawable/ic_media_rew" android:showAsAction="ifRoom" />
     <item android:id="@+id/single_step" android:title="@string/single_step_label"
         android:icon="@android:drawable/ic_media_next" android:showAsAction="ifRoom" />
 	<item android:id="@+id/control_mode" android:title="@string/move_label"
-		android:icon="@android:drawable/ic_menu_mylocation" android:showAsAction="always|withText">
+		android:icon="@android:drawable/ic_menu_mylocation">
 		<menu>
 			<group android:id="@+id/control_mode_group"
 				android:checkableBehavior="single">
@@ -23,7 +23,7 @@
 	</item>
 	<item android:id="@+id/clear" android:title="@string/clear_label"
 		android:icon="@android:drawable/ic_menu_close_clear_cancel"
-		android:showAsAction="always|withText" />
+		android:showAsAction="ifRoom" />
 	<item android:id="@+id/settings" android:title="@string/settings_label"
 		android:alphabeticShortcut="@string/settings_shortcut" android:icon="@android:drawable/ic_menu_preferences" />
 	<item android:id="@+id/about" android:title="@string/about_label" />
