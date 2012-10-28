@@ -18,84 +18,28 @@
  ******************************************************************************/
 package be.ppareit.gameoflife_demo;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
 
 public class PreferencesActivity extends PreferenceActivity {
-    
-    private static final String OPTION_MINIMUM = "UNDERPOPULATION_VARIABLE";
-    private static final String OPTION_MINIMUM_DEFAULT = "2";
-    private static final String OPTION_MAXIMUM = "OVERPOPULATION_VARIABLE";
-    private static final String OPTION_MAXIMUM_DEFAULT = "3";
-    private static final String OPTION_SPAWN = "SPAWN_VARIABLE";
-    private static final String OPTION_SPAWN_DEFAULT = "3";
-    private static final String OPTION_ANIMATION_SPEED = "ANIMATION_SPEED";
-    private static final String OPTION_ANIMATION_SPEED_DEFAULT = "10";
-    private static final String OPTION_DISPLAY_THEME = "DISPLAY_THEME";
-    private static final String OPTION_DISPLAY_THEME_DEFAULT = "0"; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
-        
+
         Preference resetPopulationSettings = findPreference("RESET_POPULATION_SETTINGS");
-        resetPopulationSettings.setOnPreferenceClickListener(
-                new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(
-                        PreferencesActivity.this).edit();
-                prefs.putString(OPTION_MINIMUM, OPTION_MINIMUM_DEFAULT);
-                prefs.putString(OPTION_MAXIMUM, OPTION_MAXIMUM_DEFAULT);
-                prefs.putString(OPTION_SPAWN, OPTION_SPAWN_DEFAULT);
-                prefs.commit();
-                recreate();
-                return true;
-            }
-        });
-    }
-    
-    public static int getMinimumVariable(Context context) {
-        return Integer.parseInt(
-                PreferenceManager.getDefaultSharedPreferences(context).
-                getString(OPTION_MINIMUM, OPTION_MINIMUM_DEFAULT));
-    }
-
-    public static int getMaximumVariable(Context context) {
-        return Integer.parseInt(
-                PreferenceManager.getDefaultSharedPreferences(context).
-                getString(OPTION_MAXIMUM, OPTION_MAXIMUM_DEFAULT));
-    }
-
-    public static int getSpawnVariable(Context context) {
-        return Integer.parseInt(
-                PreferenceManager.getDefaultSharedPreferences(context).
-                getString(OPTION_SPAWN, OPTION_SPAWN_DEFAULT));
-    }
-    
-    public static int getAnimationSpeed(Context context) {
-        return Integer.parseInt(
-                PreferenceManager.getDefaultSharedPreferences(context).
-                getString(OPTION_ANIMATION_SPEED, OPTION_ANIMATION_SPEED_DEFAULT));
-    }
-    
-    public static int getDisplayTheme(Context context) {
-        // first get the index of the theme
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String themeNdx = prefs.getString(OPTION_DISPLAY_THEME, OPTION_DISPLAY_THEME_DEFAULT);
-        int ndx = Integer.parseInt(themeNdx);
-        // now convert that index to a real resource
-        Resources res = context.getResources();
-        TypedArray themes = res.obtainTypedArray(R.array.themes);
-        return themes.getResourceId(ndx, R.array.dark_theme);
+        resetPopulationSettings
+                .setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Settings.resetPopulationSettings();
+                        recreate();
+                        return true;
+                    }
+                });
     }
 
 }
