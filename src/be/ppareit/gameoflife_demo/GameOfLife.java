@@ -30,17 +30,17 @@ import android.graphics.Point;
 /**
  * The data and algorithm for the game of life.
  * 
- * Currently a very simple algorithm is implemented. A good introduction to more
- * advanced algorithms is in "Data Structures & Program Design in C" by R. Kruse,
- * C.L. Tondo and B. Leung.
- *
+ * Currently a very simple algorithm is implemented. A good introduction to more advanced
+ * algorithms is in "Data Structures & Program Design in C" by R. Kruse, C.L. Tondo and B.
+ * Leung.
+ * 
  */
 public class GameOfLife {
-    
+
     private int[][] mGrid;
     private int mRows;
     private int mCols;
-    
+
     private int mMinimum = 2;
     private int mMaximum = 3;
     private int mSpawn = 3;
@@ -51,47 +51,47 @@ public class GameOfLife {
         mGrid = new int[mRows][mCols];
         initializeGrid();
     }
-    
+
     public int[][] getGrid() {
         return mGrid;
     }
-    
+
     private void initializeGrid() {
         resetGrid();
     }
-    
+
     public void resetGrid() {
         for (int h = 0; h < mRows; ++h)
             for (int w = 0; w < mCols; ++w)
                 mGrid[h][w] = 0;
     }
-    
+
     class FormatNotSupportedException extends RuntimeException {
         private static final long serialVersionUID = 3294986520736594117L;
     }
-    
+
     public void loadGridFromFile(InputStream is) {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        
+
         Set<Point> points = new HashSet<Point>();
         int minX = Integer.MAX_VALUE;
         int maxX = Integer.MIN_VALUE;
         int minY = Integer.MAX_VALUE;
         int maxY = Integer.MIN_VALUE;
-        
+
         try {
             String line = reader.readLine();
             if (!line.equals("#Life 1.06")) {
                 throw new FormatNotSupportedException();
             }
-            while ( (line = reader.readLine()) != null) {
-                String [] coords = line.split("\\s+");
+            while ((line = reader.readLine()) != null) {
+                String[] coords = line.split("\\s+");
                 int x = Integer.parseInt(coords[0]);
                 int y = Integer.parseInt(coords[1]);
-                
+
                 points.add(new Point(x, y));
-                
+
                 minX = Math.min(x, minX);
                 maxX = Math.max(x, maxX);
                 minY = Math.min(y, minY);
@@ -100,26 +100,28 @@ public class GameOfLife {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
+
         points = offset(points, -minX, -minY);
         maxX -= minX;
         maxY -= minY;
-        
+
         loadGrid(points, maxX, maxY);
     }
-    
+
     private void loadGrid(Set<Point> points, int maxX, int maxY) {
         resetGrid();
-        
-        final int rowOffset = (getRows() - maxY)/2;
-        final int colOffset = (getCols() - maxX)/2;
-        
+
+        final int rowOffset = (getRows() - maxY) / 2;
+        final int colOffset = (getCols() - maxX) / 2;
+
         for (Point p : points) {
-            mGrid[rowOffset + p.y][colOffset + p.x] = 1; 
+            if ((p.y + rowOffset < 0) || (p.x + colOffset < 0)
+                    || (p.y + rowOffset >= getRows()) || (p.x + colOffset >= getCols()))
+                continue;
+            mGrid[rowOffset + p.y][colOffset + p.x] = 1;
         }
     }
 
-    
     static private Set<Point> offset(Set<Point> points, int dx, int dy) {
         try {
             @SuppressWarnings("unchecked")
@@ -136,14 +138,14 @@ public class GameOfLife {
 
     public void generateNextGeneration() {
         int neighbors;
-        
-        int [][] nextGenerationGrid = new int[mRows][mCols];
-        
+
+        int[][] nextGenerationGrid = new int[mRows][mCols];
+
         for (int h = 0; h < mRows; ++h) {
             for (int w = 0; w < mCols; ++w) {
                 neighbors = calculateNeighbors(h, w);
-                
-                if (mGrid[h][w] !=0) {
+
+                if (mGrid[h][w] != 0) {
                     if ((neighbors >= mMinimum) && (neighbors <= mMaximum)) {
                         nextGenerationGrid[h][w] = neighbors;
                     }
@@ -154,9 +156,9 @@ public class GameOfLife {
                 }
             }
         }
-        
+
         copyGrid(nextGenerationGrid);
-        
+
     }
 
     private void copyGrid(int[][] nextGenerationGrid) {
@@ -169,7 +171,7 @@ public class GameOfLife {
         int total = (mGrid[y][x] != 0) ? -1 : 0;
         for (int h = -1; h <= +1; ++h)
             for (int w = -1; w <= +1; ++w)
-                if (mGrid[(mRows + y + h)%mRows][(mCols + x + w)%mCols] != 0)
+                if (mGrid[(mRows + y + h) % mRows][(mCols + x + w) % mCols] != 0)
                     total++;
         return total;
     }
@@ -177,7 +179,7 @@ public class GameOfLife {
     public int getRows() {
         return mRows;
     }
-    
+
     public int getCols() {
         return mCols;
     }
@@ -193,29 +195,5 @@ public class GameOfLife {
     public void setSpawn(int spawnVariable) {
         mSpawn = spawnVariable;
     }
-    
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

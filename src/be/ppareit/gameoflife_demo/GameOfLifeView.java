@@ -28,9 +28,11 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.Surface;
 import android.view.WindowManager;
 
 /**
@@ -82,20 +84,25 @@ public class GameOfLifeView extends GameLoopView implements
         if (mGameOfLife == null) {
             WindowManager wm = (WindowManager) getContext().getSystemService(
                     Context.WINDOW_SERVICE);
-            int rows = wm.getDefaultDisplay().getHeight() / 40;
-            int cols = wm.getDefaultDisplay().getWidth() / 40;
+            Display disp = wm.getDefaultDisplay();
+            int rows, cols;
+            if ((disp.getRotation() & (Surface.ROTATION_0 | Surface.ROTATION_180)) != 0) {
+                cols = disp.getHeight() / 30;
+                rows = disp.getWidth() / 30;
+            } else {
+                rows = disp.getHeight() / 30;
+                cols = disp.getWidth() / 30;
+            }
             mGameOfLife = new GameOfLife(rows, cols);
-            mGameOfLife.setUnderPopulation(PreferencesActivity
-                    .getMinimumVariable(getContext()));
-            mGameOfLife.setOverPopulation(PreferencesActivity
-                    .getMaximumVariable(getContext()));
-            mGameOfLife.setSpawn(PreferencesActivity.getSpawnVariable(getContext()));
+            mGameOfLife.setUnderPopulation(Settings.getMinimumVariable());
+            mGameOfLife.setOverPopulation(Settings.getMaximumVariable());
+            mGameOfLife.setSpawn(Settings.getSpawnVariable());
             mGameOfLife.loadGridFromFile(getResources().openRawResource(R.raw.android));
 
             mUndoManager = new UndoManager(mGameOfLife);
         }
 
-        setTargetFps(PreferencesActivity.getAnimationSpeed(getContext()));
+        setTargetFps(Settings.getAnimationSpeed());
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.registerOnSharedPreferenceChangeListener(this);
@@ -110,7 +117,7 @@ public class GameOfLifeView extends GameLoopView implements
     }
 
     private void initTheme(Context context) {
-        int theme = PreferencesActivity.getDisplayTheme(context);
+        int theme = Settings.getDisplayTheme();
         Resources res = getResources();
         TypedArray themeData = res.obtainTypedArray(theme);
 
@@ -209,15 +216,13 @@ public class GameOfLifeView extends GameLoopView implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("UNDERPOPULATION_VARIABLE")) {
-            mGameOfLife.setUnderPopulation(PreferencesActivity
-                    .getMinimumVariable(getContext()));
+            mGameOfLife.setUnderPopulation(Settings.getMinimumVariable());
         } else if (key.equals("OVERPOPULATION_VARIABLE")) {
-            mGameOfLife.setOverPopulation(PreferencesActivity
-                    .getMaximumVariable(getContext()));
+            mGameOfLife.setOverPopulation(Settings.getMaximumVariable());
         } else if (key.equals("SPAWN_VARIABLE")) {
-            mGameOfLife.setSpawn(PreferencesActivity.getSpawnVariable(getContext()));
+            mGameOfLife.setSpawn(Settings.getSpawnVariable());
         } else if (key.equals("ANIMATION_SPEED")) {
-            setTargetFps(PreferencesActivity.getAnimationSpeed(getContext()));
+            setTargetFps(Settings.getAnimationSpeed());
         } else if (key.equals("DISPLAY_THEME")) {
             initTheme(getContext());
         }
