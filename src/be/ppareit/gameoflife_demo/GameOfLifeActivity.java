@@ -20,16 +20,21 @@ package be.ppareit.gameoflife_demo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.ipaulpro.afilechooser.FileChooserActivity;
 
 /**
  * Main activity for the Game of Life.
  * 
  */
 public class GameOfLifeActivity extends Activity {
+
+    private static final int REQUEST_CHOOSER = 0x0001;
 
     private GameOfLifeView mGameOfLifeView;
 
@@ -73,23 +78,16 @@ public class GameOfLifeActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+        case R.id.load:
+            pauseGame();
+            Intent intent = new Intent(this, FileChooserActivity.class);
+            startActivityForResult(intent, REQUEST_CHOOSER);
+            return true;
         case R.id.start:
-            mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING);
-            mClearMenu.setEnabled(false);
-            mStartMenu.setVisible(false).setEnabled(false);
-            mPauseMenu.setVisible(true).setEnabled(true);
-            mUndoMenu.setEnabled(false);
-            mSingleStepMenu.setEnabled(false);
-            mControlMenu.setEnabled(false);
+            startGame();
             return true;
         case R.id.pause:
-            updatePausedMode();
-            mPauseMenu.setVisible(false).setEnabled(false);
-            mStartMenu.setVisible(true).setEnabled(true);
-            mSingleStepMenu.setEnabled(true);
-            mUndoMenu.setEnabled(true);
-            mClearMenu.setEnabled(true);
-            mControlMenu.setEnabled(true);
+            pauseGame();
             return true;
         case R.id.undo:
             mGameOfLifeView.doUndo();
@@ -120,6 +118,37 @@ public class GameOfLifeActivity extends Activity {
         default:
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+        case REQUEST_CHOOSER:
+            if (resultCode == RESULT_OK) {
+                final Uri uri = data.getData();
+                mGameOfLifeView.doLoad(uri);
+            }
+        }
+    }
+
+    private void pauseGame() {
+        updatePausedMode();
+        mPauseMenu.setVisible(false).setEnabled(false);
+        mStartMenu.setVisible(true).setEnabled(true);
+        mSingleStepMenu.setEnabled(true);
+        mUndoMenu.setEnabled(true);
+        mClearMenu.setEnabled(true);
+        mControlMenu.setEnabled(true);
+    }
+
+    private void startGame() {
+        mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING);
+        mClearMenu.setEnabled(false);
+        mStartMenu.setVisible(false).setEnabled(false);
+        mPauseMenu.setVisible(true).setEnabled(true);
+        mUndoMenu.setEnabled(false);
+        mSingleStepMenu.setEnabled(false);
+        mControlMenu.setEnabled(false);
     }
 
     @Override

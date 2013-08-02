@@ -18,6 +18,11 @@
  ******************************************************************************/
 package be.ppareit.gameoflife_demo;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -26,6 +31,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.Display;
@@ -34,6 +40,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 /**
  * The main view for the Game of Life.
@@ -382,6 +389,23 @@ public class GameOfLifeView extends GameLoopView implements
     public void doUndo() {
         mUndoManager.popState();
         invalidate();
+    }
+
+    public void doLoad(Uri uri) {
+        Context context = getContext();
+        try {
+            File file = new File(uri.getPath());
+            InputStream is;
+            is = new FileInputStream(file);
+            mGameOfLife.loadGridFromFile(is);
+        } catch (FileNotFoundException e) {
+            Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (GameOfLife.FormatNotSupportedException e) {
+            Toast.makeText(context, R.string.file_format_not_supported, Toast.LENGTH_LONG)
+                    .show();
+            e.printStackTrace();
+        }
     }
 
 }

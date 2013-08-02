@@ -7,6 +7,9 @@
     <string name="single_step_label">Single step</string>
     <string name="start_label">Start</string>
     <string name="edit_label">Edit</string>
+    <string name="file_label">File</string>
+    <string name="load_label">Load...</string>
+    <string name="save_label">Save...</string>
     <string name="move_label">Move</string>
     <string name="clear_label">Clear</string>
     <string name="about_label">About...</string>
@@ -57,5 +60,7 @@
     <string name="display_settings_title">Display settings</string>
     <string name="speed_title">Animation speed</string>
     <string name="theme_title">Display theme</string>
+    <string name="file_not_found">File not found.</string>
+    <string name="file_format_not_supported">This file format is not supported. Contact developper, see about.</string>
 
 </resources>
