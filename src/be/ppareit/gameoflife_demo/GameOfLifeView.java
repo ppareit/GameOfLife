@@ -1,18 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2011 Pieter Pareit.
+ * Copyright (c) 2011-2013 Pieter Pareit.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
@@ -41,6 +41,7 @@ import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.WindowManager;
 import android.widget.Toast;
+import be.ppareit.android.GameLoopView;
 
 /**
  * The main view for the Game of Life.

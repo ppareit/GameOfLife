@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Pieter Pareit.
+ * Copyright (c) 2011-2013 Pieter Pareit.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,7 +16,7 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife_demo;
+package be.ppareit.android;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -25,6 +25,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import be.ppareit.gameoflife_demo.BuildConfig;
 
 /**
  * This class contains all logic related to running a game loop.
