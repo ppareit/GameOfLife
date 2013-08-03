@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,6 +34,8 @@ import com.ipaulpro.afilechooser.FileChooserActivity;
  * 
  */
 public class GameOfLifeActivity extends Activity {
+
+    private static final String TAG = GameOfLifeActivity.class.getSimpleName();
 
     private static final int REQUEST_CHOOSER = 0x0001;
 
@@ -53,6 +56,17 @@ public class GameOfLifeActivity extends Activity {
         setContentView(R.layout.main);
 
         mGameOfLifeView = (GameOfLifeView) findViewById(R.id.gameoflife_view);
+
+        final Intent intent = getIntent();
+        if (intent != null) {
+            Log.v(TAG, "Activity started using intent");
+            final Uri uri = intent.getData();
+            if (uri != null) {
+                Log.v(TAG, "Uri received: " + uri.toString());
+                mGameOfLifeView.doLoad(uri);
+            }
+        }
+
     }
 
     @Override
