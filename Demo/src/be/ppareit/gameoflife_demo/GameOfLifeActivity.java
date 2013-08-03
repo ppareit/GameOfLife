@@ -91,45 +91,44 @@ public class GameOfLifeActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.load:
+        int itemId = item.getItemId();
+        if (itemId == R.id.load) {
             pauseGame();
             Intent intent = new Intent(this, FileChooserActivity.class);
             startActivityForResult(intent, REQUEST_CHOOSER);
             return true;
-        case R.id.start:
+        } else if (itemId == R.id.start) {
             startGame();
             return true;
-        case R.id.pause:
+        } else if (itemId == R.id.pause) {
             pauseGame();
             return true;
-        case R.id.undo:
+        } else if (itemId == R.id.undo) {
             mGameOfLifeView.doUndo();
             mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
             return true;
-        case R.id.single_step:
+        } else if (itemId == R.id.single_step) {
             mGameOfLifeView.doSingleStep();
             mUndoMenu.setEnabled(true);
             return true;
-        case R.id.edit:
-        case R.id.move:
+        } else if (itemId == R.id.edit || itemId == R.id.move) {
             mControlMenu.setIcon(item.getIcon());
             mControlMenu.setTitle(item.getTitle());
             item.setChecked(true);
             updatePausedMode();
             mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
             return true;
-        case R.id.clear:
+        } else if (itemId == R.id.clear) {
             mGameOfLifeView.clearGrid();
             mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
             return true;
-        case R.id.settings:
+        } else if (itemId == R.id.settings) {
             startActivity(new Intent(this, PreferencesActivity.class));
             return true;
-        case R.id.about:
+        } else if (itemId == R.id.about) {
             startActivity(new Intent(this, AboutActivity.class));
             return true;
-        default:
+        } else {
             return super.onOptionsItemSelected(item);
         }
     }
