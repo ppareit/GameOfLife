@@ -20,6 +20,7 @@ package be.ppareit.gameoflife_demo;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 /**
  * Simple activity that displays the about box.
@@ -31,6 +32,13 @@ public class AboutActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
+
+        // TODO: Html formatting is lost due to the call to String.format()
+        String version = GolApplication.getVersion();
+        TextView aboutText = (TextView) findViewById(R.id.about_content);
+        String aboutString = getString(R.string.about_text);
+        aboutString = String.format(aboutString, version);
+        aboutText.setText(aboutString);
     }
 
 }

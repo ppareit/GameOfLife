@@ -40,7 +40,9 @@
     one). The rules continue to be applied repeatedly to create further
     generations.
     \n\n<b>More info: </b><i><u>http://en.wikipedia.org/wiki/Conway_game_of_life</u></i>    \n\n<b>Programming: </b>Pieter Pareit (pieter.pareit@gmail.com)
-    \n\n<b>Artwork: </b>Birgit Niemegeers (birgit.niemegeers@gmail.com)    </string>
+    \n\n<b>Artwork: </b>Birgit Niemegeers (birgit.niemegeers@gmail.com)
+    \n\n<b>Version: %1$s</b>
+    </string>
     <string name="settings_label">Settings...</string>
     <string name="settings_title">Game of Life Settings</string>
     <string name="settings_shortcut">s</string>
