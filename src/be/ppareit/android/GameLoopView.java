@@ -18,6 +18,7 @@
  ******************************************************************************/
 package be.ppareit.android;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -66,6 +67,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
             mFpsTextPaint.setTextSize(32);
         }
 
+        @SuppressLint("WrongCall")
         @Override
         public void run() {
             Log.d(TAG, "AnimationThread.run'ing");
@@ -228,6 +230,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
      */
     private volatile boolean surfaceCreatedCompleted = false;
 
+    @SuppressLint("WrongCall")
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         Log.d(TAG, "surfaceCreated'ing");
@@ -249,6 +252,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
 
     }
 
+    @SuppressLint("WrongCall")
     @Override
     public void invalidate() {
         SurfaceHolder holder = getHolder();
