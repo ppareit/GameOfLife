@@ -171,9 +171,9 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
             mThread.setRunning(true);
             mThread.start();
         }
-		if (BuildConfig.DEBUG == true) {
-			mDrawFps = true;
-		}
+        if (BuildConfig.DEBUG == true) {
+            mDrawFps = true;
+        }
         Log.d(TAG, "startGameLoop'ed");
     }
 
