@@ -16,29 +16,31 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife_demo;
+package be.ppareit.gameoflife;
 
-import android.app.Activity;
+import be.ppareit.gameoflife_demo.R;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
 
-/**
- * Simple activity that displays the about box.
- *
- */
-public class AboutActivity extends Activity {
-    
+public class PreferencesActivity extends PreferenceActivity {
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.about);
+        addPreferencesFromResource(R.xml.settings);
 
-        // TODO: Html formatting is lost due to the call to String.format()
-        String version = GolApplication.getVersion();
-        TextView aboutText = (TextView) findViewById(R.id.about_content);
-        String aboutString = getString(R.string.about_text);
-        aboutString = String.format(aboutString, version);
-        aboutText.setText(aboutString);
+        Preference resetPopulationSettings = findPreference("RESET_POPULATION_SETTINGS");
+        resetPopulationSettings
+                .setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Settings.resetPopulationSettings();
+                        recreate();
+                        return true;
+                    }
+                });
     }
 
 }

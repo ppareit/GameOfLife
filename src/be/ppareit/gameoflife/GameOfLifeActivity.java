@@ -16,7 +16,7 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife_demo;
+package be.ppareit.gameoflife;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import be.ppareit.gameoflife_demo.R;
 
 import com.ipaulpro.afilechooser.FileChooserActivity;
 

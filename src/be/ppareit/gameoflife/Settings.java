@@ -16,8 +16,9 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife_demo;
+package be.ppareit.gameoflife;
 
+import be.ppareit.gameoflife_demo.R;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;

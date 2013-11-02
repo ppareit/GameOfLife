@@ -16,7 +16,7 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife_demo;
+package be.ppareit.gameoflife;
 
 import java.util.ArrayList;
 import java.util.List;

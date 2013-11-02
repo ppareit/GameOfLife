@@ -16,7 +16,7 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife_demo;
+package be.ppareit.gameoflife;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +42,7 @@ import android.view.Surface;
 import android.view.WindowManager;
 import android.widget.Toast;
 import be.ppareit.android.GameLoopView;
+import be.ppareit.gameoflife_demo.R;
 
 /**
  * The main view for the Game of Life.
