@@ -8,6 +8,8 @@
         android:minSdkVersion="11"
         android:targetSdkVersion="19" />
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:name="be.ppareit.gameoflife.GolApplication"
         android:allowBackup="true"
@@ -37,9 +39,12 @@
         <activity
             android:name="be.ppareit.gameoflife.PreferencesActivity"
             android:label="@string/settings_title" />
+
         <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
             android:icon="@drawable/ic_chooser"
+            android:enabled="true"
+            android:exported="true"
             android:label="@string/choose_file" >
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />

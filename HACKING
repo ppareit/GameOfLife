@@ -6,6 +6,11 @@ at http://developer.android.com/resources/tutorials/hello-world.html
 
 Currently Game Of Life expects sdk and virtual machine for at least android 3.2
 
+Dependencies
+============
+This program depends on the excelent file chooser by Paul Burke (Apache License 2.0)
+at https://github.com/iPaulPro/aFileChooser
+
 Setup instructions
 ==================
 
