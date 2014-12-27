@@ -378,11 +378,8 @@ public class GameOfLifeView extends GameLoopView implements
             mEditListner.onTouchEvent(event);
             break;
         case MOVING:
-            // give the pinch to zoom detector the event and possible stop here
+            // Let pinch to zoom process the event
             mScaleDetector.onTouchEvent(event);
-            if (mScaleDetector.isInProgress())
-                break;
-
             // give the gesture detector the event
             mMoveDetector.onTouchEvent(event);
 
