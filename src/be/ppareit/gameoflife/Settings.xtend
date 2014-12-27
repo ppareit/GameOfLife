@@ -24,6 +24,9 @@ import static be.ppareit.gameoflife.App.*
 
 @AndroidPreference class Settings {
 
+    int cols = 30
+    int rows = 30
+
     def resetPopulationSettings() {
         var pedit = pref.edit();
         pedit.putString("minimum_variable", "2");

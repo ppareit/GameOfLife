@@ -84,11 +84,9 @@ public class GameOfLifeView extends GameLoopView implements
     // this object can detect pinch to zoom touch events
     private final ScaleGestureDetector mScaleDetector;
 
-    // stretch the blocks to the complete display
-    private float mScaleX = 1.f;
-    private float mScaleY = 1.f;
     // zooming factor, set with pinch to zoom gesture
-    private float mScaleFactor = 1.f;
+    private float mScale = Float.MAX_VALUE;
+    private float mMaxScale = Float.MAX_VALUE;
 
     public GameOfLifeView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -96,17 +94,9 @@ public class GameOfLifeView extends GameLoopView implements
         Settings settings = Settings.getSettings(context);
 
         if (mGameOfLife == null) {
-            WindowManager wm = (WindowManager) getContext().getSystemService(
-                    Context.WINDOW_SERVICE);
-            Display disp = wm.getDefaultDisplay();
-            int rows, cols;
-            if ((disp.getRotation() & (Surface.ROTATION_0 | Surface.ROTATION_180)) != 0) {
-                cols = disp.getHeight() / 30;
-                rows = disp.getWidth() / 30;
-            } else {
-                rows = disp.getHeight() / 30;
-                cols = disp.getWidth() / 30;
-            }
+            int rows = settings.getRows();
+            int cols = settings.getCols();
+
             mGameOfLife = new GameOfLife(rows, cols);
             mGameOfLife.setUnderPopulation(settings.getMinimumVariable());
             mGameOfLife.setOverPopulation(settings.getMaximumVariable());
@@ -123,8 +113,6 @@ public class GameOfLifeView extends GameLoopView implements
 
         mEditListner = new EditListner();
         mMoveDetector = new GestureDetector(context, new MoveListner());
-
-        // construct the pinch to zoom detector with our own callback
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListner());
 
         initTheme(context);
@@ -176,10 +164,9 @@ public class GameOfLifeView extends GameLoopView implements
         final int rows = mGameOfLife.getRows();
         final int cols = mGameOfLife.getCols();
 
-        final float scaleX = mScaleX * mScaleFactor;
-        final float scaleY = mScaleY * mScaleFactor;
+        final float scale = mScale;
 
-        canvas.drawRect(0, 0, cols * scaleX, rows * scaleY, mBackgroundPaint);
+        canvas.drawRect(0, 0, cols * scale, rows * scale, mBackgroundPaint);
 
         // addition is faster then multiplication combined with modulo,
         // so keep track of correct drawing position and update it every step
@@ -191,40 +178,39 @@ public class GameOfLifeView extends GameLoopView implements
                 // draw the cell
                 final Drawable cell = (mGameOfLife.getGrid()[r][c] != 0) ? mLiveCell
                         : mDeadCell;
-                cell.setBounds((int) left, (int) top, (int) (left + scaleX),
-                        (int) (top + scaleY));
+                cell.setBounds((int) left, (int) top, (int) (left + scale),
+                        (int) (top + scale));
                 cell.draw(canvas);
                 // check if at bound
-                if (top + scaleX > rows * scaleY) {
+                if (top + scale > rows * scale) {
                     // redraw cell, but at bottom
-                    cell.setBounds((int) left, (int) (top - rows * scaleY),
-                            (int) (left + scaleX), (int) (top - rows * scaleY + scaleY));
+                    cell.setBounds((int) left, (int) (top - rows * scale),
+                            (int) (left + scale), (int) (top - rows * scale + scale));
                     cell.draw(canvas);
                 }
                 // reposition left
-                left += scaleX;
+                left += scale;
                 // if going over the edge
-                if (left > cols * scaleX) {
+                if (left > cols * scale) {
                     // reposition
-                    left -= cols * scaleX;
+                    left -= cols * scale;
                     // draw an extra cell to the left
-                    cell.setBounds((int) (left - scaleX), (int) top, (int) left,
-                            (int) (top + scaleY));
+                    cell.setBounds((int) (left - scale), (int) top, (int) left,
+                            (int) (top + scale));
                     cell.draw(canvas);
                     // if in left bottom corner
-                    if (top + scaleY > rows * scaleY) {
+                    if (top + scale > rows * scale) {
                         // draw an extra cell in the left top corner
-                        cell.setBounds((int) (left - scaleX),
-                                (int) (top - rows * scaleY), (int) left, (int) (top
-                                        - rows * scaleY + scaleY));
+                        cell.setBounds((int) (left - scale), (int) (top - rows * scale),
+                                (int) left, (int) (top - rows * scale + scale));
                         cell.draw(canvas);
                     }
                 }
             }
             left = mXOffset;
-            top += scaleY;
-            if (top > rows * scaleY)
-                top -= rows * scaleY;
+            top += scale;
+            if (top > rows * scale)
+                top -= rows * scale;
         }
     }
 
@@ -243,16 +229,13 @@ public class GameOfLifeView extends GameLoopView implements
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mXOffset = 0;
-        mYOffset = 0;
-        mScaleFactor = 1.f;
+        final float sx = (float) w / mGameOfLife.getCols();
+        final float sy = (float) h / mGameOfLife.getRows();
 
-        mScaleX = (float) w / mGameOfLife.getCols();
-        mScaleY = (float) h / mGameOfLife.getRows();
+        mMaxScale = Math.max(sx, sy);
+        mScale = mScale > mMaxScale ? mMaxScale : mScale;
 
-        Log.d(TAG, "New scale X: " + mScaleX);
-        Log.d(TAG, "New scale Y: " + mScaleY);
-
+        Log.d(TAG, "New scale: " + mScale);
     }
 
     private class MoveListner extends GestureDetector.SimpleOnGestureListener {
@@ -262,8 +245,8 @@ public class GameOfLifeView extends GameLoopView implements
                 float distanceY) {
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final int width = (int) (cols * mScaleX * mScaleFactor);
-            final int height = (int) (rows * mScaleY * mScaleFactor);
+            final int width = (int) (cols * mScale);
+            final int height = (int) (rows * mScale);
             mXOffset = (int) (mXOffset - distanceX + width) % width;
             mYOffset = (int) (mYOffset - distanceY + height) % height;
             return true;
@@ -278,11 +261,10 @@ public class GameOfLifeView extends GameLoopView implements
             final int y = (int) e.getY();
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final float scaleX = mScaleX * mScaleFactor;
-            final float scaleY = mScaleY * mScaleFactor;
+            final float scale = mScale;
 
-            int c = (int) ((x - mXOffset + cols * scaleX) / scaleX) % cols;
-            int r = (int) ((y - mYOffset + rows * scaleY) / scaleY) % rows;
+            int c = (int) ((x - mXOffset + cols * scale) / scale) % cols;
+            int r = (int) ((y - mYOffset + rows * scale) / scale) % rows;
 
             mUndoManager.pushState();
 
@@ -312,11 +294,10 @@ public class GameOfLifeView extends GameLoopView implements
 
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final float scaleX = mScaleX * mScaleFactor;
-            final float scaleY = mScaleY * mScaleFactor;
+            final float scale = mScale;
 
-            int c = (int) ((x - mXOffset + cols * scaleX) / scaleX) % cols;
-            int r = (int) ((y - mYOffset + rows * scaleY) / scaleY) % rows;
+            int c = (int) ((x - mXOffset + cols * scale) / scale) % cols;
+            int r = (int) ((y - mYOffset + rows * scale) / scale) % rows;
 
             if (mPreviousFlippedCol == c && mPreviousFlippedRow == r
                     && mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
@@ -346,11 +327,12 @@ public class GameOfLifeView extends GameLoopView implements
             final float focusX = detector.getFocusX();
             final float focusY = detector.getFocusY();
 
-            final float oldScale = mScaleFactor;
-            final float newScale = Math.max(1.f, Math.min(oldScale * factor, 5.f));
+            final float oldScale = mScale;
+            final float newScale = Math
+                    .max(mMaxScale, Math.min(oldScale * factor, 200.f));
 
-            final float width = cols * mScaleX * newScale;
-            final float height = rows * mScaleY * newScale;
+            final float width = cols * newScale;
+            final float height = rows * newScale;
 
             final float focusXdiff = focusX - width / 2;
             final float focusYdiff = focusY - height / 2;
@@ -361,7 +343,7 @@ public class GameOfLifeView extends GameLoopView implements
             mXOffset %= width;
             mYOffset %= height;
 
-            mScaleFactor = newScale;
+            mScale = newScale;
 
             return true;
         }
