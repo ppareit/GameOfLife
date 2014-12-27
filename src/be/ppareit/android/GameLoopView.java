@@ -53,6 +53,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
 
         private int mFrameSamplesCollected = 0;
         private int mFrameSampleTime = 0;
+        private int mFrameNumber = 0; // keeping track of how many frames we've shown
         private int mFps = 0;
 
         private SurfaceHolder mSurfaceHolder;
@@ -90,6 +91,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
                     mSurfaceHolder.unlockCanvasAndPost(canvas);
                 }
                 sleepIfNeeded();
+                mFrameNumber++;
                 updateFps();
             }
             Log.d(TAG, "AnimationThread.run'ed");
@@ -112,8 +114,8 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            } else {
-                Log.i("GameLoopView", "Failed to reach expected FPS!");
+            } else if (mFrameNumber % 20 == 0) {
+                Log.i(TAG, "Failed to reach expected FPS!");
             }
         }
 
