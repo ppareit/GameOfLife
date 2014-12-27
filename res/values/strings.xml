@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Game Of Life (Demo)</string>
+    <string name="app_name">Game Of Life</string>
     <string name="pause_label">Pause</string>
     <string name="undo_label">Undo</string>
     <string name="single_step_label">Single step</string>

@@ -4,15 +4,15 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
@@ -26,21 +26,21 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import be.ppareit.gameoflife_demo.BuildConfig;
+import be.ppareit.gameoflife.BuildConfig;
 
 /**
  * This class contains all logic related to running a game loop.
  * <p>
- * 
+ *
  * This class must be extended by your game. All game logic should happen in onUpdate().
  * All drawing should happen in onDraw(). The game loop is started with startGameLoop()
  * and stopped with pauseGameLoop(). When the game loop is paused, and the screen needs to
  * be refreshed, call invalidate().
  * <p>
- * 
+ *
  * While part of GameOfLife, this class can be reused in other applications that need a
  * view containing a game loop and the related logic.
- * 
+ *
  */
 public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = GameLoopView.class.getSimpleName();
@@ -129,7 +129,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
             mFrameSamplesCollected++;
 
             if (mFrameSamplesCollected == 10) {
-                mFps = (int) ((10 * 1000) / mFrameSampleTime);
+                mFps = (10 * 1000) / mFrameSampleTime;
 
                 mFrameSampleTime = 0;
                 mFrameSamplesCollected = 0;
@@ -200,7 +200,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
     /**
      * Set's the frame rate at which the game loop should run. Be conservative and
      * implement an efficient onUpate()/onDraw() so this frame rate can be maintaned.
-     * 
+     *
      * @param fps
      *            The frame rate at which the game loop should run, set to zero to run as
      *            fast as possible.
@@ -211,7 +211,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
 
     /**
      * If set to true, the gameloop will display the fps in the bottom right corner.
-     * 
+     *
      * @param show
      *            Flag indicating wheter to show the fps or not.
      */
@@ -275,6 +275,7 @@ public abstract class GameLoopView extends SurfaceView implements SurfaceHolder.
     /**
      * Override this to de the drawing.
      */
+    @Override
     abstract protected void onDraw(Canvas canvas);
 
 }

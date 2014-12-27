@@ -4,15 +4,15 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
@@ -42,11 +42,11 @@ import android.view.Surface;
 import android.view.WindowManager;
 import android.widget.Toast;
 import be.ppareit.android.GameLoopView;
-import be.ppareit.gameoflife_demo.R;
+import be.ppareit.gameoflife.R;
 
 /**
  * The main view for the Game of Life.
- * 
+ *
  * Responsible for drawing the data. Intercepts touch events. When the mode is set to
  * EDITING, it will add or remove data. When the mode is set to MOVING, panning and
  * zooming is done. When the mode is set to PLAYING, the game loop is started and the data
@@ -333,10 +333,10 @@ public class GameOfLifeView extends GameLoopView implements
             /*
              * final float factor = detector.getScaleFactor(); final float oldScaleFactor
              * = mScaleFactor;
-             * 
+             *
              * mScaleFactor *= factor; mScaleFactor = Math.max(1.f, Math.min(mScaleFactor,
              * 5.f));
-             * 
+             *
              * // zoom from the center of the screen // TODO: it is better to zoom from
              * the center of the two fingers mXOffset += mGameOfLife.getCols() *
              * (oldScaleFactor - mScaleFactor) / 2; mYOffset += mGameOfLife.getRows() *
