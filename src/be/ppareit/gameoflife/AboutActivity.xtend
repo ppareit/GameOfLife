@@ -16,12 +16,12 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife;
+package be.ppareit.gameoflife
 
-import be.ppareit.gameoflife.R;
-import android.app.Activity;
-import android.os.Bundle;
-import android.widget.TextView;
+import be.ppareit.gameoflife.R
+import android.app.Activity
+import android.os.Bundle
+import android.widget.TextView
 
 /**
  * Simple activity that displays the about box.
@@ -29,17 +29,16 @@ import android.widget.TextView;
  */
 public class AboutActivity extends Activity {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.about);
+    override onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.about)
 
         // TODO: Html formatting is lost due to the call to String.format()
-        String version = GolApplication.getVersion();
-        TextView aboutText = (TextView) findViewById(R.id.about_content);
-        String aboutString = getString(R.string.about_text);
-        aboutString = String.format(aboutString, version);
-        aboutText.setText(aboutString);
+        val version = App.getVersion()
+        val aboutText = findViewById(R.id.about_content) as TextView
+        var aboutString = getString(R.string.about_text)
+        aboutString = String.format(aboutString, version)
+        aboutText.setText(aboutString)
     }
 
 }

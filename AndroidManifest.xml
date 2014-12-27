@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name="be.ppareit.gameoflife.GolApplication"
+        android:name="be.ppareit.gameoflife.App"
         android:allowBackup="true"
         android:icon="@drawable/launcher"
         android:label="@string/app_name" >

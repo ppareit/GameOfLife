@@ -16,31 +16,26 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife;
+package be.ppareit.gameoflife
 
-import be.ppareit.gameoflife.R;
-import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
+import android.os.Bundle
+import android.preference.PreferenceActivity
+
+import static extension be.ppareit.gameoflife.Settings.* 
 
 public class PreferencesActivity extends PreferenceActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.settings);
+    override onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState)
+        addPreferencesFromResource(R.xml.settings)
 
-        Preference resetPopulationSettings = findPreference("RESET_POPULATION_SETTINGS");
-        resetPopulationSettings
-                .setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Settings.resetPopulationSettings();
-                        recreate();
-                        return true;
-                    }
-                });
+        val resetPopulationSettings = findPreference("reset_population_settings")
+        resetPopulationSettings.setOnPreferenceClickListener(
+            [
+                settings.resetPopulationSettings()
+                recreate()
+                return true
+            ])
     }
 
 }

@@ -90,6 +90,8 @@ public class GameOfLifeView extends GameLoopView implements
     public GameOfLifeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        Settings settings = Settings.getSettings(context);
+
         if (mGameOfLife == null) {
             WindowManager wm = (WindowManager) getContext().getSystemService(
                     Context.WINDOW_SERVICE);
@@ -103,15 +105,15 @@ public class GameOfLifeView extends GameLoopView implements
                 cols = disp.getWidth() / 30;
             }
             mGameOfLife = new GameOfLife(rows, cols);
-            mGameOfLife.setUnderPopulation(Settings.getMinimumVariable());
-            mGameOfLife.setOverPopulation(Settings.getMaximumVariable());
-            mGameOfLife.setSpawn(Settings.getSpawnVariable());
+            mGameOfLife.setUnderPopulation(settings.getMinimumVariable());
+            mGameOfLife.setOverPopulation(settings.getMaximumVariable());
+            mGameOfLife.setSpawn(settings.getSpawnVariable());
             mGameOfLife.loadGridFromFile(getResources().openRawResource(R.raw.android));
 
             mUndoManager = new UndoManager(mGameOfLife);
         }
 
-        setTargetFps(Settings.getAnimationSpeed());
+        setTargetFps(settings.getAnimationSpeed());
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.registerOnSharedPreferenceChangeListener(this);
@@ -126,7 +128,8 @@ public class GameOfLifeView extends GameLoopView implements
     }
 
     private void initTheme(Context context) {
-        int theme = Settings.getDisplayTheme();
+        Settings settings = Settings.getSettings(context);
+        int theme = settings.getDisplayTheme();
         Resources res = getResources();
         TypedArray themeData = res.obtainTypedArray(theme);
 
@@ -224,17 +227,15 @@ public class GameOfLifeView extends GameLoopView implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("UNDERPOPULATION_VARIABLE")) {
-            mGameOfLife.setUnderPopulation(Settings.getMinimumVariable());
-        } else if (key.equals("OVERPOPULATION_VARIABLE")) {
-            mGameOfLife.setOverPopulation(Settings.getMaximumVariable());
-        } else if (key.equals("SPAWN_VARIABLE")) {
-            mGameOfLife.setSpawn(Settings.getSpawnVariable());
-        } else if (key.equals("ANIMATION_SPEED")) {
-            setTargetFps(Settings.getAnimationSpeed());
-        } else if (key.equals("DISPLAY_THEME")) {
-            initTheme(getContext());
-        }
+        Settings settings = Settings.getSettings(getContext());
+
+        mGameOfLife.setUnderPopulation(settings.getMinimumVariable());
+        mGameOfLife.setOverPopulation(settings.getMaximumVariable());
+        mGameOfLife.setSpawn(settings.getSpawnVariable());
+
+        setTargetFps(settings.getAnimationSpeed());
+
+        initTheme(getContext());
     }
 
     @Override

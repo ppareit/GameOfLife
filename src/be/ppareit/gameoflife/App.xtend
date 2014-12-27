@@ -16,43 +16,41 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife;
+package be.ppareit.gameoflife
 
-import android.app.Application;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.util.Log;
+import android.app.Application
+import android.content.pm.PackageManager.NameNotFoundException
+import android.util.Log
+import org.xtendroid.annotations.AddLogTag
 
-public class GolApplication extends Application {
+@AddLogTag
+public class App extends Application {
 
-    static final String TAG = GolApplication.class.getSimpleName();
-
-    private static Context mContext;
-
-    public void onCreate() {
-        super.onCreate();
-        mContext = getApplicationContext();
+    private static App sApp
+    
+    static def App getApp() {
+        return sApp
     }
 
-    public static Context getAppContext() {
-        return mContext;
+    override void onCreate() {
+        super.onCreate()
+        sApp = this
     }
 
     /**
      * Get the version from the manifest.
-     * 
+     *
      * @return The version as a String.
      */
-    public static String getVersion() {
-        Context context = getAppContext();
-        String packageName = context.getPackageName();
+    static def getVersion() {
+        val context = app.applicationContext
+        val packageName = context.getPackageName()
         try {
-            PackageManager pm = context.getPackageManager();
-            return pm.getPackageInfo(packageName, 0).versionName;
+            val pm = context.getPackageManager()
+            return pm.getPackageInfo(packageName, 0).versionName
         } catch (NameNotFoundException e) {
-            Log.e(TAG, "Unable to find the name " + packageName + " in the package");
-            return "";
+            Log.e(TAG, "Unable to find the name " + packageName + " in the package")
+            return ""
         }
     }
 
