@@ -34,6 +34,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -54,6 +55,8 @@ import be.ppareit.gameoflife.R;
  */
 public class GameOfLifeView extends GameLoopView implements
         SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final String TAG = GameOfLifeView.class.getSimpleName();
 
     public enum State {
         RUNNING, EDITING, MOVING,
@@ -247,6 +250,9 @@ public class GameOfLifeView extends GameLoopView implements
         mScaleX = (float) w / mGameOfLife.getCols();
         mScaleY = (float) h / mGameOfLife.getRows();
 
+        Log.d(TAG, "New scale X: " + mScaleX);
+        Log.d(TAG, "New scale Y: " + mScaleY);
+
     }
 
     private class MoveListner extends GestureDetector.SimpleOnGestureListener {
@@ -254,8 +260,10 @@ public class GameOfLifeView extends GameLoopView implements
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
                 float distanceY) {
-            final int width = (int) (mGameOfLife.getCols() * mScaleX * mScaleFactor);
-            final int height = (int) (mGameOfLife.getRows() * mScaleY * mScaleFactor);
+            final int cols = mGameOfLife.getCols();
+            final int rows = mGameOfLife.getRows();
+            final int width = (int) (cols * mScaleX * mScaleFactor);
+            final int height = (int) (rows * mScaleY * mScaleFactor);
             mXOffset = (int) (mXOffset - distanceX + width) % width;
             mYOffset = (int) (mYOffset - distanceY + height) % height;
             return true;
@@ -331,18 +339,30 @@ public class GameOfLifeView extends GameLoopView implements
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            /*
-             * final float factor = detector.getScaleFactor(); final float oldScaleFactor
-             * = mScaleFactor;
-             *
-             * mScaleFactor *= factor; mScaleFactor = Math.max(1.f, Math.min(mScaleFactor,
-             * 5.f));
-             *
-             * // zoom from the center of the screen // TODO: it is better to zoom from
-             * the center of the two fingers mXOffset += mGameOfLife.getCols() *
-             * (oldScaleFactor - mScaleFactor) / 2; mYOffset += mGameOfLife.getRows() *
-             * (oldScaleFactor - mScaleFactor) / 2;
-             */
+            final int cols = mGameOfLife.getCols();
+            final int rows = mGameOfLife.getRows();
+
+            final float factor = detector.getScaleFactor();
+            final float focusX = detector.getFocusX();
+            final float focusY = detector.getFocusY();
+
+            final float oldScale = mScaleFactor;
+            final float newScale = Math.max(1.f, Math.min(oldScale * factor, 5.f));
+
+            final float width = cols * mScaleX * newScale;
+            final float height = rows * mScaleY * newScale;
+
+            final float focusXdiff = focusX - width / 2;
+            final float focusYdiff = focusY - height / 2;
+
+            mXOffset += focusXdiff * (oldScale - newScale) / 2;
+            mYOffset += focusYdiff * (oldScale - newScale) / 2;
+
+            mXOffset %= width;
+            mYOffset %= height;
+
+            mScaleFactor = newScale;
+
             return true;
         }
     }
