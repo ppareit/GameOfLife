@@ -159,59 +159,58 @@ public class GameOfLifeView extends GameLoopView implements
     @Override
     protected void onDraw(Canvas canvas) {
 
-        canvas.drawRect(0, 0, getWidth(), getHeight(), mCanvasPaint);
-
         final int rows = mGameOfLife.getRows();
         final int cols = mGameOfLife.getCols();
 
         final float scale = mScale;
+        final int rightEdge = (int) (cols - mXOffset / scale);
+        final int bottomEdge = (int) (rows - mYOffset / scale);
 
-        canvas.drawRect(0, 0, cols * scale, rows * scale, mBackgroundPaint);
+        final int[][] grid = mGameOfLife.getGrid();
+
+        canvas.drawRect(0, 0, getWidth(), getHeight(), mBackgroundPaint);
+
+        canvas.save();
+
+        canvas.translate(mXOffset, mYOffset);
+        canvas.scale(scale, scale);
 
         // addition is faster then multiplication combined with modulo,
         // so keep track of correct drawing position and update it every step
-        float left = mXOffset;
-        float top = mYOffset;
+        int left = 0;
+        int top = 0;
         // for all rows and all cols
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 // draw the cell
-                final Drawable cell = (mGameOfLife.getGrid()[r][c] != 0) ? mLiveCell
-                        : mDeadCell;
-                cell.setBounds((int) left, (int) top, (int) (left + scale),
-                        (int) (top + scale));
+                final Drawable cell = (grid[r][c] != 0) ? mLiveCell : mDeadCell;
+                cell.setBounds(left, top, left + 1, top + 1);
                 cell.draw(canvas);
                 // check if at bound
-                if (top + scale > rows * scale) {
+                if (top + 1 > rows) {
                     // redraw cell, but at bottom
-                    cell.setBounds((int) left, (int) (top - rows * scale),
-                            (int) (left + scale), (int) (top - rows * scale + scale));
+                    cell.setBounds(left, top - rows, left + 1, top - rows + 1);
                     cell.draw(canvas);
                 }
                 // reposition left
-                left += scale;
+                left += 1;
                 // if going over the edge
-                if (left > cols * scale) {
+                if (left > rightEdge) {
                     // reposition
-                    left -= cols * scale;
-                    // draw an extra cell to the left
-                    cell.setBounds((int) (left - scale), (int) top, (int) left,
-                            (int) (top + scale));
-                    cell.draw(canvas);
-                    // if in left bottom corner
-                    if (top + scale > rows * scale) {
-                        // draw an extra cell in the left top corner
-                        cell.setBounds((int) (left - scale), (int) (top - rows * scale),
-                                (int) left, (int) (top - rows * scale + scale));
-                        cell.draw(canvas);
-                    }
+                    left -= cols + 1;
+                    c--;
                 }
             }
-            left = mXOffset;
-            top += scale;
-            if (top > rows * scale)
-                top -= rows * scale;
+            left = 0;
+            top += 1;
+            // if going over the edge
+            if (top > bottomEdge) {
+                // move back and one more so that one is redrawn
+                top -= rows + 1;
+                r--;
+            }
         }
+        canvas.restore();
     }
 
     @Override
