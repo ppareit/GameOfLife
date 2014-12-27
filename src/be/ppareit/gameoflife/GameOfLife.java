@@ -26,16 +26,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import android.graphics.Point;
+import android.util.Log;
 
 /**
  * The data and algorithm for the game of life.
- * 
+ *
  * Currently a very simple algorithm is implemented. A good introduction to more advanced
  * algorithms is in "Data Structures & Program Design in C" by R. Kruse, C.L. Tondo and B.
  * Leung.
- * 
+ *
  */
 public class GameOfLife {
+
+    static final String TAG = GameOfLife.class.getSimpleName();
 
     private int[][] mGrid;
     private int mRows;
@@ -181,14 +184,17 @@ public class GameOfLife {
     }
 
     public void setUnderPopulation(int minimumVariable) {
+        Log.d(TAG, "Setting underpopulation to: " + minimumVariable);
         mMinimum = minimumVariable;
     }
 
     public void setOverPopulation(int maximumVariable) {
+        Log.d(TAG, "Setting overpopulation to: " + maximumVariable);
         mMaximum = maximumVariable;
     }
 
     public void setSpawn(int spawnVariable) {
+        Log.d(TAG, "Setting spawnvariable to: " + spawnVariable);
         mSpawn = spawnVariable;
     }
 
