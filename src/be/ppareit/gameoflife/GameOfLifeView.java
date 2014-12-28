@@ -29,21 +29,19 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.Surface;
-import android.view.WindowManager;
 import android.widget.Toast;
 import be.ppareit.android.GameLoopView;
-import be.ppareit.gameoflife.R;
 
 /**
  * The main view for the Game of Life.
@@ -78,15 +76,10 @@ public class GameOfLifeView extends GameLoopView implements
     // this object detects move events, and continuously toggles cell state
     private final EditListner mEditListner;
 
-    private int mXOffset = 0;
-    private int mYOffset = 0;
-
     // this object can detect pinch to zoom touch events
     private final ScaleGestureDetector mScaleDetector;
 
-    // zooming factor, set with pinch to zoom gesture
-    private float mScale = Float.MAX_VALUE;
-    private float mMaxScale = Float.MAX_VALUE;
+    private Matrix mDrawMatrix = new Matrix();
 
     public GameOfLifeView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -162,18 +155,15 @@ public class GameOfLifeView extends GameLoopView implements
         final int rows = mGameOfLife.getRows();
         final int cols = mGameOfLife.getCols();
 
-        final float scale = mScale;
-        final int rightEdge = (int) (cols - mXOffset / scale);
-        final int bottomEdge = (int) (rows - mYOffset / scale);
-
         final int[][] grid = mGameOfLife.getGrid();
 
-        canvas.drawRect(0, 0, getWidth(), getHeight(), mBackgroundPaint);
+        canvas.drawRect(0, 0, getWidth(), getHeight(), mCanvasPaint);
 
         canvas.save();
 
-        canvas.translate(mXOffset, mYOffset);
-        canvas.scale(scale, scale);
+        canvas.concat(mDrawMatrix);
+
+        canvas.drawRect(0, 0, rows, cols, mBackgroundPaint);
 
         // addition is faster then multiplication combined with modulo,
         // so keep track of correct drawing position and update it every step
@@ -194,21 +184,9 @@ public class GameOfLifeView extends GameLoopView implements
                 }
                 // reposition left
                 left += 1;
-                // if going over the edge
-                if (left > rightEdge) {
-                    // reposition
-                    left -= cols + 1;
-                    c--;
-                }
             }
             left = 0;
             top += 1;
-            // if going over the edge
-            if (top > bottomEdge) {
-                // move back and one more so that one is redrawn
-                top -= rows + 1;
-                r--;
-            }
         }
         canvas.restore();
     }
@@ -231,10 +209,11 @@ public class GameOfLifeView extends GameLoopView implements
         final float sx = (float) w / mGameOfLife.getCols();
         final float sy = (float) h / mGameOfLife.getRows();
 
-        mMaxScale = Math.max(sx, sy);
-        mScale = mScale > mMaxScale ? mMaxScale : mScale;
+        final float scale = Math.max(sx, sy);
 
-        Log.d(TAG, "New scale: " + mScale);
+        mDrawMatrix.setScale(scale, scale);
+
+        Log.d(TAG, "Size changed, new scale: " + scale);
     }
 
     private class MoveListner extends GestureDetector.SimpleOnGestureListener {
@@ -242,12 +221,7 @@ public class GameOfLifeView extends GameLoopView implements
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
                 float distanceY) {
-            final int cols = mGameOfLife.getCols();
-            final int rows = mGameOfLife.getRows();
-            final int width = (int) (cols * mScale);
-            final int height = (int) (rows * mScale);
-            mXOffset = (int) (mXOffset - distanceX + width) % width;
-            mYOffset = (int) (mYOffset - distanceY + height) % height;
+            mDrawMatrix.postTranslate(-distanceX, -distanceY);
             return true;
         }
 
@@ -256,19 +230,22 @@ public class GameOfLifeView extends GameLoopView implements
          */
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            final int x = (int) e.getX();
-            final int y = (int) e.getY();
+
+            float[] pts = { e.getX(), e.getY() };
+            Matrix inverse = new Matrix();
+            mDrawMatrix.invert(inverse);
+            inverse.mapPoints(pts);
+            final int c = (int) pts[1];
+            final int r = (int) pts[0];
+            Log.d(TAG, "Tapped: " + c + "  " + r);
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final float scale = mScale;
 
-            int c = (int) ((x - mXOffset + cols * scale) / scale) % cols;
-            int r = (int) ((y - mYOffset + rows * scale) / scale) % rows;
-
-            mUndoManager.pushState();
-
-            mGameOfLife.getGrid()[r][c] = (mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
-
+            if (0 <= c && c < cols && 0 <= r && r < rows) {
+                mUndoManager.pushState();
+                int[][] grid = mGameOfLife.getGrid();
+                grid[c][r] = (grid[c][r] != 0 ? 0 : 1);
+            }
             return true;
         }
 
@@ -291,23 +268,27 @@ public class GameOfLifeView extends GameLoopView implements
 
         private void doEdit(int x, int y) {
 
+            float[] pts = { x, y };
+            Matrix inverse = new Matrix();
+            mDrawMatrix.invert(inverse);
+            inverse.mapPoints(pts);
+            final int c = (int) pts[0];
+            final int r = (int) pts[1];
             final int cols = mGameOfLife.getCols();
             final int rows = mGameOfLife.getRows();
-            final float scale = mScale;
 
-            int c = (int) ((x - mXOffset + cols * scale) / scale) % cols;
-            int r = (int) ((y - mYOffset + rows * scale) / scale) % rows;
+            if (0 <= c && c < cols && 0 <= r && r < rows) {
+                if (mPreviousFlippedCol == c && mPreviousFlippedRow == r
+                        && mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    mPreviousFlippedCol = c;
+                    mPreviousFlippedRow = r;
+                    mPreviousFlippedTime = System.currentTimeMillis();
+                }
 
-            if (mPreviousFlippedCol == c && mPreviousFlippedRow == r
-                    && mPreviousFlippedTime + 500 > System.currentTimeMillis()) {
-                return;
-            } else {
-                mPreviousFlippedCol = c;
-                mPreviousFlippedRow = r;
-                mPreviousFlippedTime = System.currentTimeMillis();
+                mGameOfLife.getGrid()[r][c] = (mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
             }
-
-            mGameOfLife.getGrid()[r][c] = (mGameOfLife.getGrid()[r][c] != 0 ? 0 : 1);
         }
 
     }
@@ -319,31 +300,17 @@ public class GameOfLifeView extends GameLoopView implements
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            final int cols = mGameOfLife.getCols();
-            final int rows = mGameOfLife.getRows();
+            float factor = detector.getScaleFactor();
 
-            final float factor = detector.getScaleFactor();
+            // limit zooming
+            final float scale = factor * mDrawMatrix.mapRadius(1.f);
+            if (scale < 10.f || 100.f < scale) {
+                return false;
+            }
+
             final float focusX = detector.getFocusX();
             final float focusY = detector.getFocusY();
-
-            final float oldScale = mScale;
-            final float newScale = Math
-                    .max(mMaxScale, Math.min(oldScale * factor, 200.f));
-
-            final float width = cols * newScale;
-            final float height = rows * newScale;
-
-            final float focusXdiff = focusX - width / 2;
-            final float focusYdiff = focusY - height / 2;
-
-            mXOffset += focusXdiff * (oldScale - newScale) / 2;
-            mYOffset += focusYdiff * (oldScale - newScale) / 2;
-
-            mXOffset %= width;
-            mYOffset %= height;
-
-            mScale = newScale;
-
+            mDrawMatrix.postScale(factor, factor, focusX, focusY);
             return true;
         }
     }
