@@ -58,13 +58,5 @@
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:showAsAction="ifRoom"
         android:title="@string/clear_label"/>
-    <item
-        android:id="@+id/settings"
-        android:alphabeticShortcut="@string/settings_shortcut"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/settings_label"/>
-    <item
-        android:id="@+id/about"
-        android:title="@string/about_label"/>
 
 </menu>

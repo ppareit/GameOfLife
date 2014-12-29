@@ -6,7 +6,7 @@
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but WITHOUT ANY WARRANTY without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -16,7 +16,7 @@
  * Contributors:
  *     Pieter Pareit - initial API and implementation
  ******************************************************************************/
-package be.ppareit.gameoflife;
+package be.ppareit.gameoflife
 
 import android.app.Activity
 import android.content.Intent
@@ -28,7 +28,13 @@ import com.ipaulpro.afilechooser.FileChooserActivity
 import org.xtendroid.annotations.AddLogTag
 
 import be.ppareit.gameoflife.R
+import android.widget.ListView
 
+import static extension be.ppareit.android.AndroidUtils.*
+import android.widget.ArrayAdapter
+import android.support.v4.app.ActionBarDrawerToggle
+import android.support.v4.widget.DrawerLayout
+import android.view.View
 
 /**
  * Main activity for the Game of Life.
@@ -37,54 +43,91 @@ import be.ppareit.gameoflife.R
 @AddLogTag
 public class GameOfLifeActivity extends Activity {
 
-    private static final int REQUEST_CHOOSER = 0x0001;
+    private static final int REQUEST_CHOOSER = 0x0001
 
-    private GameOfLifeView mGameOfLifeView;
+    private GameOfLifeView mGameOfLifeView
 
-    private MenuItem mStartMenu;
-    private MenuItem mPauseMenu;
-    private MenuItem mUndoMenu;
-    private MenuItem mSingleStepMenu;
-    private MenuItem mClearMenu;
-    private MenuItem mControlMenu;
-    private MenuItem mEditMenu;
-    private MenuItem mMoveMenu;
+    private MenuItem mStartMenu
+    private MenuItem mPauseMenu
+    private MenuItem mUndoMenu
+    private MenuItem mSingleStepMenu
+    private MenuItem mClearMenu
+    private MenuItem mControlMenu
+    private MenuItem mEditMenu
+    private MenuItem mMoveMenu
+
+    private DrawerLayout mDrawerLayout
+    private ListView mDrawerListView
+    private String[] mDrawerItems = #["Settings...", "About..."]
+    private Class[] mDrawerActivities = #[PreferencesActivity, AboutActivity]
 
     override onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.main)
 
-        mGameOfLifeView = findViewById(R.id.gameoflife_view) as GameOfLifeView
+        mGameOfLifeView = findView(R.id.gameoflife_view)
 
-        val intent = getIntent();
-        if (intent != null) {
-            Log.v(TAG, "Activity started using intent");
-            val uri = intent.getData();
-            if (uri != null) {
-                Log.v(TAG, "Uri received: " + uri.toString());
-                mGameOfLifeView.doLoad(uri);
+        mDrawerLayout = findView(R.id.drawer_layout)
+        mDrawerListView = findView(R.id.left_drawer)
+        mDrawerListView.adapter = new ArrayAdapter<String>(this,
+            android.R.layout.simple_list_item_1, mDrawerItems)
+        mDrawerListView.onItemClickListener = [ parent, view, position, id |
+            startActivity(new Intent(this, mDrawerActivities.get(position) as Class))
+        ]
+        mDrawerLayout.drawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
+            R.drawable.launcher, R.string.app_name, R.string.app_name) {
+            override onDrawerClosed(View view) {
+                Log.d(TAG, "Closed drawer")
+                invalidateOptionsMenu()
+            }
+
+            override onDrawerOpened(View view) {
+                Log.d(TAG, "Opened drawer")
+                invalidateOptionsMenu()
+            }
+        }
+        
+        //actionBar.displayHomeAsUpEnabled = true
+        //actionBar.homeButtonEnabled = true
+
+        val intent = getIntent()
+        if(intent != null) {
+            Log.v(TAG, "Activity started using intent")
+            val uri = intent.getData()
+            if(uri != null) {
+                Log.v(TAG, "Uri received: " + uri.toString())
+                mGameOfLifeView.doLoad(uri)
             }
         }
 
     }
 
     override onCreateOptionsMenu(Menu menu) {
-        val inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
+        val inflater = getMenuInflater()
+        inflater.inflate(R.menu.main, menu)
 
-        mStartMenu = menu.findItem(R.id.start);
-        mPauseMenu = menu.findItem(R.id.pause);
-        mUndoMenu = menu.findItem(R.id.undo);
-        mSingleStepMenu = menu.findItem(R.id.single_step);
-        mClearMenu = menu.findItem(R.id.clear);
-        mControlMenu = menu.findItem(R.id.control_mode);
-        mEditMenu = menu.findItem(R.id.edit);
-        mMoveMenu = menu.findItem(R.id.move);
+        mStartMenu = menu.findItem(R.id.start)
+        mPauseMenu = menu.findItem(R.id.pause)
+        mUndoMenu = menu.findItem(R.id.undo)
+        mSingleStepMenu = menu.findItem(R.id.single_step)
+        mClearMenu = menu.findItem(R.id.clear)
+        mControlMenu = menu.findItem(R.id.control_mode)
+        mEditMenu = menu.findItem(R.id.edit)
+        mMoveMenu = menu.findItem(R.id.move)
 
-        mPauseMenu.setVisible(false).setEnabled(false);
-        mUndoMenu.setEnabled(false);
+        mPauseMenu.setVisible(false).setEnabled(false)
+        mUndoMenu.setEnabled(false)
 
-        return true;
+        return true
+    }
+    
+    override onPrepareOptionsMenu(Menu menu) {
+        val drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerListView)
+        for (i : 0..menu.size-1) {
+            var item = menu.getItem(i);
+            item.visible = !drawerOpen
+        }
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override onOptionsItemSelected(MenuItem item) {
@@ -98,7 +141,7 @@ public class GameOfLifeActivity extends Activity {
             case R.id.start: {
                 startGame()
                 return true
-                }
+            }
             case R.id.pause: {
                 pauseGame()
                 return true
@@ -111,36 +154,28 @@ public class GameOfLifeActivity extends Activity {
             case R.id.single_step: {
                 mGameOfLifeView.doSingleStep()
                 mUndoMenu.setEnabled(true)
-                return true;
+                return true
             }
             case R.id.edit: {
-                mControlMenu.setIcon(item.getIcon());
-                mControlMenu.setTitle(item.getTitle());
-                item.setChecked(true);
-                updatePausedMode();
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
-                return true;
+                mControlMenu.setIcon(item.getIcon())
+                mControlMenu.setTitle(item.getTitle())
+                item.setChecked(true)
+                updatePausedMode()
+                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
+                return true
             }
             case R.id.move: {
-                mControlMenu.setIcon(item.getIcon());
-                mControlMenu.setTitle(item.getTitle());
-                item.setChecked(true);
-                updatePausedMode();
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
-                return true;
+                mControlMenu.setIcon(item.getIcon())
+                mControlMenu.setTitle(item.getTitle())
+                item.setChecked(true)
+                updatePausedMode()
+                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
+                return true
             }
             case R.id.clear: {
-                mGameOfLifeView.clearGrid();
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
-                return true;
-            }
-            case R.id.settings: {
-                startActivity(new Intent(this, PreferencesActivity));
-                return true;
-            }
-            case R.id.about: {
-                startActivity(new Intent(this, AboutActivity));
-                return true;
+                mGameOfLifeView.clearGrid()
+                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
+                return true
             }
             default:
                 return super.onOptionsItemSelected(item)
@@ -149,52 +184,52 @@ public class GameOfLifeActivity extends Activity {
 
     override onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-        case REQUEST_CHOOSER:
-            if (resultCode == RESULT_OK) {
-                val uri = data.getData();
-                mGameOfLifeView.doLoad(uri);
-            }
+            case REQUEST_CHOOSER:
+                if(resultCode == RESULT_OK) {
+                    val uri = data.getData()
+                    mGameOfLifeView.doLoad(uri)
+                }
         }
     }
 
     def pauseGame() {
-        updatePausedMode();
-        mPauseMenu.setVisible(false).setEnabled(false);
-        mStartMenu.setVisible(true).setEnabled(true);
-        mSingleStepMenu.setEnabled(true);
-        mUndoMenu.setEnabled(true);
-        mClearMenu.setEnabled(true);
-        mControlMenu.setEnabled(true);
+        updatePausedMode()
+        mPauseMenu.setVisible(false).setEnabled(false)
+        mStartMenu.setVisible(true).setEnabled(true)
+        mSingleStepMenu.setEnabled(true)
+        mUndoMenu.setEnabled(true)
+        mClearMenu.setEnabled(true)
+        mControlMenu.setEnabled(true)
     }
 
     def startGame() {
-        mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING);
-        mClearMenu.setEnabled(false);
-        mStartMenu.setVisible(false).setEnabled(false);
-        mPauseMenu.setVisible(true).setEnabled(true);
-        mUndoMenu.setEnabled(false);
-        mSingleStepMenu.setEnabled(false);
-        mControlMenu.setEnabled(false);
+        mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING)
+        mClearMenu.setEnabled(false)
+        mStartMenu.setVisible(false).setEnabled(false)
+        mPauseMenu.setVisible(true).setEnabled(true)
+        mUndoMenu.setEnabled(false)
+        mSingleStepMenu.setEnabled(false)
+        mControlMenu.setEnabled(false)
     }
 
     override onPause() {
-        super.onPause();
-        updatePausedMode();
-        mPauseMenu.setVisible(false).setEnabled(false);
-        mStartMenu.setVisible(true).setEnabled(true);
+        super.onPause()
+        updatePausedMode()
+        mPauseMenu.setVisible(false).setEnabled(false)
+        mStartMenu.setVisible(true).setEnabled(true)
     }
 
     def updatePausedMode() {
-        if (mEditMenu.isChecked()) {
+        if(mEditMenu.isChecked()) {
             mGameOfLifeView.setMode(GameOfLifeView.State.EDITING)
-        } else if (mMoveMenu.isChecked()) {
+        } else if(mMoveMenu.isChecked()) {
             mGameOfLifeView.setMode(GameOfLifeView.State.MOVING)
         }
     }
 
     override onUserInteraction() {
-        super.onUserInteraction();
-        mUndoMenu.setEnabled(mGameOfLifeView.canUndo());
+        super.onUserInteraction()
+        mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
     }
 
 }
