@@ -209,15 +209,26 @@ public class GameOfLifeView extends GameLoopView implements
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        mDrawMatrix.reset();
+
+        // make center the left-top position
+        final int cols = mGameOfLife.getCols();
+        final int rows = mGameOfLife.getRows();
+        mDrawMatrix.postTranslate(-cols / 2, -rows / 2);
+
+        // scale to display metrics
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getContext().getSystemService(
                 Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(metrics);
+
         final float scale = 20 * metrics.density;
-
-        mDrawMatrix.setScale(scale, scale);
-
+        mDrawMatrix.postScale(scale, scale);
         Log.d(TAG, "Size changed, new scale: " + scale);
+
+        // move left-top position to middle of screen
+        mDrawMatrix.postTranslate(getWidth() / 2, getHeight() / 2);
+
     }
 
     private class MoveListner extends GestureDetector.SimpleOnGestureListener {
