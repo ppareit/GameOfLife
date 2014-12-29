@@ -31,15 +31,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.WindowManager;
 import android.widget.Toast;
 import be.ppareit.android.GameLoopView;
 
@@ -125,6 +126,8 @@ public class GameOfLifeView extends GameLoopView implements
 
         mDeadCell = themeData.getDrawable(1);
         mLiveCell = themeData.getDrawable(2);
+
+        themeData.recycle();
     }
 
     public void setMode(State mode) {
@@ -206,10 +209,11 @@ public class GameOfLifeView extends GameLoopView implements
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        final float sx = (float) w / mGameOfLife.getCols();
-        final float sy = (float) h / mGameOfLife.getRows();
-
-        final float scale = Math.max(sx, sy);
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getContext().getSystemService(
+                Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(metrics);
+        final float scale = 20 * metrics.density;
 
         mDrawMatrix.setScale(scale, scale);
 
@@ -293,6 +297,10 @@ public class GameOfLifeView extends GameLoopView implements
 
     }
 
+    private float getScale() {
+        return mDrawMatrix.mapRadius(1.f);
+    }
+
     /**
      * Callback for the ScaleGestureDetector
      */
@@ -303,7 +311,7 @@ public class GameOfLifeView extends GameLoopView implements
             float factor = detector.getScaleFactor();
 
             // limit zooming
-            final float scale = factor * mDrawMatrix.mapRadius(1.f);
+            final float scale = factor * getScale();
             if (scale < 10.f || 100.f < scale) {
                 return false;
             }
@@ -311,6 +319,8 @@ public class GameOfLifeView extends GameLoopView implements
             final float focusX = detector.getFocusX();
             final float focusY = detector.getFocusY();
             mDrawMatrix.postScale(factor, factor, focusX, focusY);
+
+            Log.d(TAG, "New scale: " + getScale());
             return true;
         }
     }
