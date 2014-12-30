@@ -145,6 +145,10 @@ public class GameOfLifeView extends GameLoopView implements
         }
     }
 
+    public State getGameState() {
+        return mState;
+    }
+
     @Override
     protected void onUpdate() {
         mGameOfLife.generateNextGeneration();

@@ -115,26 +115,60 @@ public class GameOfLifeActivity extends Activity {
         mEditMenu = menu.findItem(R.id.edit)
         mMoveMenu = menu.findItem(R.id.move)
 
-        mPauseMenu.setVisible(false).setEnabled(false)
-        mUndoMenu.setEnabled(false)
-
         return true
     }
 
     override onPrepareOptionsMenu(Menu menu) {
         val drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerListView)
-        for (i : 0 .. menu.size - 1) {
-            var item = menu.getItem(i);
-            item.visible = !drawerOpen
+
+        if (drawerOpen == true) {
+            // hide all menus when drawer is open
+            for (i : 0 .. menu.size - 1) {
+                var item = menu.getItem(i);
+                item.visible = false
+            }
+
+        } else {
+            // else, look at the gamestate
+            switch (mGameOfLifeView.gameState) {
+                case GameOfLifeView.State.RUNNING: {
+                    mStartMenu.visible = false
+                    mSingleStepMenu.visible = false
+                    mPauseMenu.visible = true
+                    mPauseMenu.enabled = true
+                    mUndoMenu.visible = false
+                    mControlMenu.visible = false
+                }
+                case GameOfLifeView.State.MOVING: {
+                    mStartMenu.visible = true
+                    mSingleStepMenu.visible = true
+                    mPauseMenu.visible = false
+                    mUndoMenu.visible = true
+                    mControlMenu.visible = true
+                    mControlMenu.icon = mMoveMenu.icon
+                    mMoveMenu.checked = true
+                }
+                case GameOfLifeView.State.EDITING: {
+                    mStartMenu.visible = true
+                    mSingleStepMenu.visible = true
+                    mPauseMenu.visible = false
+                    mUndoMenu.visible = true
+                    mControlMenu.visible = true
+                    mControlMenu.icon = mEditMenu.icon
+                    mEditMenu.checked = true
+                }
+            }
+            mUndoMenu.enabled = mGameOfLifeView.canUndo
         }
+
         return super.onPrepareOptionsMenu(menu)
     }
 
     def onDrawerItemSelected(int id) {
         switch (id) {
             case R.id.clear: {
+                pauseGame()
                 mGameOfLifeView.clearGrid()
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
             }
             case R.id.load_from_file: {
                 pauseGame()
@@ -160,42 +194,33 @@ public class GameOfLifeActivity extends Activity {
 
         switch item.getItemId() {
             case R.id.start: {
-                startGame()
-                return true
+                mGameOfLifeView.mode = GameOfLifeView.State.RUNNING
             }
             case R.id.pause: {
                 pauseGame()
-                return true
             }
             case R.id.undo: {
                 mGameOfLifeView.doUndo()
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
-                return true
             }
             case R.id.single_step: {
                 mGameOfLifeView.doSingleStep()
-                mUndoMenu.setEnabled(true)
-                return true
             }
             case R.id.edit: {
-                mControlMenu.setIcon(item.getIcon())
-                mControlMenu.setTitle(item.getTitle())
-                item.setChecked(true)
-                updatePausedMode()
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
-                return true
+                mGameOfLifeView.mode = GameOfLifeView.State.EDITING
             }
             case R.id.move: {
-                mControlMenu.setIcon(item.getIcon())
-                mControlMenu.setTitle(item.getTitle())
-                item.setChecked(true)
-                updatePausedMode()
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
-                return true
+                mGameOfLifeView.mode = GameOfLifeView.State.MOVING
             }
             default:
                 return super.onOptionsItemSelected(item)
         }
+
+        invalidateOptionsMenu()
+        return true;
+    }
+
+    def pauseGame() {
+        mGameOfLifeView.mode = GameOfLifeView.State.MOVING
     }
 
     override onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -216,42 +241,15 @@ public class GameOfLifeActivity extends Activity {
         }
     }
 
-    def pauseGame() {
-        updatePausedMode()
-        mPauseMenu.setVisible(false).setEnabled(false)
-        mStartMenu.setVisible(true).setEnabled(true)
-        mSingleStepMenu.setEnabled(true)
-        mUndoMenu.setEnabled(true)
-        mControlMenu.setEnabled(true)
-    }
-
-    def startGame() {
-        mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING)
-        mStartMenu.setVisible(false).setEnabled(false)
-        mPauseMenu.setVisible(true).setEnabled(true)
-        mUndoMenu.setEnabled(false)
-        mSingleStepMenu.setEnabled(false)
-        mControlMenu.setEnabled(false)
-    }
-
     override onPause() {
         super.onPause()
-        updatePausedMode()
-        mPauseMenu.setVisible(false).setEnabled(false)
-        mStartMenu.setVisible(true).setEnabled(true)
-    }
-
-    def updatePausedMode() {
-        if(mEditMenu.isChecked()) {
-            mGameOfLifeView.setMode(GameOfLifeView.State.EDITING)
-        } else if(mMoveMenu.isChecked()) {
-            mGameOfLifeView.setMode(GameOfLifeView.State.MOVING)
-        }
+        pauseGame()
+        invalidateOptionsMenu()
     }
 
     override onUserInteraction() {
         super.onUserInteraction()
-        mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
+        mUndoMenu.enabled = mGameOfLifeView.canUndo
     }
 
 }

@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/single_step"
+        android:icon="@android:drawable/ic_media_next"
+        android:showAsAction="always"
+        android:title="@string/single_step_label"/>
+    <item
         android:id="@+id/start"
         android:icon="@android:drawable/ic_media_play"
         android:showAsAction="always"
@@ -13,14 +18,9 @@
         android:title="@string/pause_label"/>
     <item
         android:id="@+id/undo"
-        android:icon="@android:drawable/ic_media_rew"
+        android:icon="@drawable/ic_action_undo"
         android:showAsAction="always"
         android:title="@string/undo_label"/>
-    <item
-        android:id="@+id/single_step"
-        android:icon="@android:drawable/ic_media_next"
-        android:showAsAction="always"
-        android:title="@string/single_step_label"/>
     <item
         android:id="@+id/control_mode"
         android:icon="@android:drawable/ic_menu_mylocation"
