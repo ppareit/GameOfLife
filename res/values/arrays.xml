@@ -42,6 +42,25 @@
         <item>1</item>
     </string-array>
 
+    <integer-array name="drawer_ids">
+        <item>@id/clear</item>
+        <item>@id/load_from_file</item>
+        <item>@id/settings</item>
+        <item>@id/about</item>
+    </integer-array>
+    <string-array name="drawer_titles">
+        <item>New</item>
+        <item>Load from file...</item>
+        <item>Settings...</item>
+        <item>About...</item>
+    </string-array>
+    <array name="drawer_icons">
+        <item>@android:drawable/ic_menu_close_clear_cancel</item>
+        <item>@drawable/ic_action_sd_storage</item>
+        <item>@drawable/ic_action_settings</item>
+        <item>@drawable/ic_action_about</item>
+    </array>
+
     <array name="themes">
         <item>@array/light_theme</item>
         <item>@array/dark_theme</item>

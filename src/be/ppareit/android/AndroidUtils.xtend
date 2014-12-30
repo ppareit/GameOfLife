@@ -10,6 +10,7 @@ import android.app.Dialog
 import android.view.View
 import android.content.SharedPreferences
 import android.app.Activity
+import android.view.LayoutInflater
 
 class AndroidUtils {
 
@@ -25,10 +26,15 @@ class AndroidUtils {
         return activity.findViewById(id) as T;
     }
 
+    def static <T extends View> T findView(View view, int id) {
+        return view.findViewById(id) as T;
+    }
+
     static def <T> T getSystemService(Context context, Class<T> t) {
         var name = switch t {
             case AlarmManager : Context.ALARM_SERVICE
             case DevicePolicyManager : Context.DEVICE_POLICY_SERVICE
+            case LayoutInflater : Context.LAYOUT_INFLATER_SERVICE
             case PowerManager : Context.POWER_SERVICE
         }
         return context.getSystemService(name) as T;

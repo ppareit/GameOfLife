@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="clear" />
+    <item type="id" name="load_from_file" />
+    <item type="id" name="settings" />
+    <item type="id" name="about" />
+</resources>

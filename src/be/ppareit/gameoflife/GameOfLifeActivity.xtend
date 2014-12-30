@@ -51,7 +51,6 @@ public class GameOfLifeActivity extends Activity {
     private MenuItem mPauseMenu
     private MenuItem mUndoMenu
     private MenuItem mSingleStepMenu
-    private MenuItem mClearMenu
     private MenuItem mControlMenu
     private MenuItem mEditMenu
     private MenuItem mMoveMenu
@@ -59,8 +58,6 @@ public class GameOfLifeActivity extends Activity {
     private DrawerLayout mDrawerLayout
     private ActionBarDrawerToggle mDrawerToggle
     private ListView mDrawerListView
-    private String[] mDrawerItems = #["Settings...", "About..."]
-    private Class[] mDrawerActivities = #[PreferencesActivity, AboutActivity]
 
     override onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState)
@@ -70,10 +67,9 @@ public class GameOfLifeActivity extends Activity {
 
         mDrawerLayout = findView(R.id.drawer_layout)
         mDrawerListView = findView(R.id.left_drawer)
-        mDrawerListView.adapter = new ArrayAdapter<String>(this,
-            android.R.layout.simple_list_item_1, mDrawerItems)
+        mDrawerListView.adapter = new DrawerListAdapter(this)
         mDrawerListView.onItemClickListener = [ parent, view, position, id |
-            startActivity(new Intent(this, mDrawerActivities.get(position) as Class))
+            onDrawerItemSelected(id as int);
         ]
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
             R.drawable.launcher, R.string.app_name, R.string.app_name) {
@@ -81,6 +77,7 @@ public class GameOfLifeActivity extends Activity {
                 Log.d(TAG, "Closed drawer")
                 invalidateOptionsMenu()
             }
+
             override onDrawerOpened(View view) {
                 Log.d(TAG, "Opened drawer")
                 invalidateOptionsMenu()
@@ -88,7 +85,6 @@ public class GameOfLifeActivity extends Activity {
         }
         mDrawerLayout.drawerListener = mDrawerToggle
 
-        actionBar.displayHomeAsUpEnabled = true
         actionBar.homeButtonEnabled = true
 
         val intent = getIntent()
@@ -115,7 +111,6 @@ public class GameOfLifeActivity extends Activity {
         mPauseMenu = menu.findItem(R.id.pause)
         mUndoMenu = menu.findItem(R.id.undo)
         mSingleStepMenu = menu.findItem(R.id.single_step)
-        mClearMenu = menu.findItem(R.id.clear)
         mControlMenu = menu.findItem(R.id.control_mode)
         mEditMenu = menu.findItem(R.id.edit)
         mMoveMenu = menu.findItem(R.id.move)
@@ -125,30 +120,45 @@ public class GameOfLifeActivity extends Activity {
 
         return true
     }
-    
+
     override onPrepareOptionsMenu(Menu menu) {
         val drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerListView)
-        for (i : 0..menu.size-1) {
+        for (i : 0 .. menu.size - 1) {
             var item = menu.getItem(i);
             item.visible = !drawerOpen
         }
         return super.onPrepareOptionsMenu(menu)
     }
 
+    def onDrawerItemSelected(int id) {
+        switch (id) {
+            case R.id.clear: {
+                mGameOfLifeView.clearGrid()
+                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
+            }
+            case R.id.load_from_file: {
+                pauseGame()
+                var intent = new Intent(this, FileChooserActivity)
+                startActivityForResult(intent, REQUEST_CHOOSER)
+            }
+            case R.id.settings: {
+                startActivity(new Intent(this, PreferencesActivity))
+            }
+            case R.id.about: {
+                startActivity(new Intent(this, AboutActivity))
+            }
+        }
+        mDrawerLayout.closeDrawer(mDrawerListView)
+    }
+
     override onOptionsItemSelected(MenuItem item) {
 
         // Pressing home/up will show/hide the navigation drawer
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if(mDrawerToggle.onOptionsItemSelected(item)) {
             return true
         }
 
         switch item.getItemId() {
-            case R.id.load: {
-                pauseGame()
-                var intent = new Intent(this, FileChooserActivity)
-                startActivityForResult(intent, REQUEST_CHOOSER)
-                return true
-            }
             case R.id.start: {
                 startGame()
                 return true
@@ -183,11 +193,6 @@ public class GameOfLifeActivity extends Activity {
                 mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
                 return true
             }
-            case R.id.clear: {
-                mGameOfLifeView.clearGrid()
-                mUndoMenu.setEnabled(mGameOfLifeView.canUndo())
-                return true
-            }
             default:
                 return super.onOptionsItemSelected(item)
         }
@@ -204,7 +209,7 @@ public class GameOfLifeActivity extends Activity {
     }
 
     override onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(mDrawerListView)) {
+        if(mDrawerLayout.isDrawerOpen(mDrawerListView)) {
             mDrawerLayout.closeDrawer(mDrawerListView)
         } else {
             super.onBackPressed()
@@ -217,13 +222,11 @@ public class GameOfLifeActivity extends Activity {
         mStartMenu.setVisible(true).setEnabled(true)
         mSingleStepMenu.setEnabled(true)
         mUndoMenu.setEnabled(true)
-        mClearMenu.setEnabled(true)
         mControlMenu.setEnabled(true)
     }
 
     def startGame() {
         mGameOfLifeView.setMode(GameOfLifeView.State.RUNNING)
-        mClearMenu.setEnabled(false)
         mStartMenu.setVisible(false).setEnabled(false)
         mPauseMenu.setVisible(true).setEnabled(true)
         mUndoMenu.setEnabled(false)

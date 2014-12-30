@@ -14,28 +14,17 @@
     <item
         android:id="@+id/undo"
         android:icon="@android:drawable/ic_media_rew"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/undo_label"/>
     <item
         android:id="@+id/single_step"
         android:icon="@android:drawable/ic_media_next"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/single_step_label"/>
-    <item
-        android:id="@+id/file_menu"
-        android:title="@string/file_label">
-        <menu>
-            <item
-                android:id="@+id/load"
-                android:title="@string/load_label"/>
-<!--             <item -->
-<!--                 android:id="@+id/save" -->
-<!--                 android:title="@string/save_label"/> -->
-        </menu>
-    </item>
     <item
         android:id="@+id/control_mode"
         android:icon="@android:drawable/ic_menu_mylocation"
+        android:showAsAction="always"
         android:title="@string/move_label">
         <menu>
             <group
@@ -53,10 +42,5 @@
             </group>
         </menu>
     </item>
-    <item
-        android:id="@+id/clear"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        android:showAsAction="ifRoom"
-        android:title="@string/clear_label"/>
 
 </menu>
