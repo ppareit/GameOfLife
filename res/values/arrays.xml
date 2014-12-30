@@ -34,8 +34,8 @@
         <item>20</item>
     </string-array>
     <string-array name="display_theme_options">
-        <item>Dark theme</item>
         <item>Light theme</item>
+        <item>Dark theme</item>
     </string-array>
     <string-array name="display_theme_values">
         <item>0</item>
@@ -43,8 +43,8 @@
     </string-array>
 
     <array name="themes">
-        <item>@array/dark_theme</item>
         <item>@array/light_theme</item>
+        <item>@array/dark_theme</item>
     </array>
     <array name="dark_theme">
         <item>@color/black_background</item>
