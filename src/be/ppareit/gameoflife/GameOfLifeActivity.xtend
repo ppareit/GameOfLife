@@ -57,6 +57,7 @@ public class GameOfLifeActivity extends Activity {
     private MenuItem mMoveMenu
 
     private DrawerLayout mDrawerLayout
+    private ActionBarDrawerToggle mDrawerToggle
     private ListView mDrawerListView
     private String[] mDrawerItems = #["Settings...", "About..."]
     private Class[] mDrawerActivities = #[PreferencesActivity, AboutActivity]
@@ -74,21 +75,21 @@ public class GameOfLifeActivity extends Activity {
         mDrawerListView.onItemClickListener = [ parent, view, position, id |
             startActivity(new Intent(this, mDrawerActivities.get(position) as Class))
         ]
-        mDrawerLayout.drawerListener = new ActionBarDrawerToggle(this, mDrawerLayout,
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
             R.drawable.launcher, R.string.app_name, R.string.app_name) {
             override onDrawerClosed(View view) {
                 Log.d(TAG, "Closed drawer")
                 invalidateOptionsMenu()
             }
-
             override onDrawerOpened(View view) {
                 Log.d(TAG, "Opened drawer")
                 invalidateOptionsMenu()
             }
         }
-        
-        //actionBar.displayHomeAsUpEnabled = true
-        //actionBar.homeButtonEnabled = true
+        mDrawerLayout.drawerListener = mDrawerToggle
+
+        actionBar.displayHomeAsUpEnabled = true
+        actionBar.homeButtonEnabled = true
 
         val intent = getIntent()
         if(intent != null) {
@@ -99,6 +100,10 @@ public class GameOfLifeActivity extends Activity {
                 mGameOfLifeView.doLoad(uri)
             }
         }
+
+        // opening the app should initially show the drawer
+        // @TODO: once the user has opened drawer once, this should no longer open at start
+        mDrawerLayout.openDrawer(mDrawerListView)
 
     }
 
@@ -131,6 +136,12 @@ public class GameOfLifeActivity extends Activity {
     }
 
     override onOptionsItemSelected(MenuItem item) {
+
+        // Pressing home/up will show/hide the navigation drawer
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true
+        }
+
         switch item.getItemId() {
             case R.id.load: {
                 pauseGame()
@@ -189,6 +200,14 @@ public class GameOfLifeActivity extends Activity {
                     val uri = data.getData()
                     mGameOfLifeView.doLoad(uri)
                 }
+        }
+    }
+
+    override onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(mDrawerListView)) {
+            mDrawerLayout.closeDrawer(mDrawerListView)
+        } else {
+            super.onBackPressed()
         }
     }
 
