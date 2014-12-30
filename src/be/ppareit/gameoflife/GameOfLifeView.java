@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -336,22 +337,26 @@ public class GameOfLifeView extends GameLoopView implements
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
         switch (mState) {
-        case RUNNING:
-            return false;
         case EDITING:
-
-            mEditListner.onTouchEvent(event);
+            // Let pinch to zoom process the event
+            mScaleDetector.onTouchEvent(event);
+            // if that one is not doing anything, lets edit
+            if (mScaleDetector.isInProgress() == false) {
+                mEditListner.onTouchEvent(event);
+            }
             break;
+
         case MOVING:
+        case RUNNING:
             // Let pinch to zoom process the event
             mScaleDetector.onTouchEvent(event);
             // give the gesture detector the event
             mMoveDetector.onTouchEvent(event);
-
             break;
         }
 
