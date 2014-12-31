@@ -21,27 +21,26 @@ package be.ppareit.gameoflife
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.ActionBarDrawerToggle
+import android.support.v4.widget.DrawerLayout
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ListView
 import com.ipaulpro.afilechooser.FileChooserActivity
 import org.xtendroid.annotations.AddLogTag
 
-import be.ppareit.gameoflife.R
-import android.widget.ListView
+import static be.ppareit.gameoflife.GameOfLifeActivity.*
 
 import static extension be.ppareit.android.AndroidUtils.*
-import android.widget.ArrayAdapter
-import android.support.v4.app.ActionBarDrawerToggle
-import android.support.v4.widget.DrawerLayout
-import android.view.View
 
 /**
  * Main activity for the Game of Life.
  *
  */
 @AddLogTag
-public class GameOfLifeActivity extends Activity {
+class GameOfLifeActivity extends Activity {
 
     private static final int REQUEST_CHOOSER = 0x0001
 
@@ -103,6 +102,7 @@ public class GameOfLifeActivity extends Activity {
 
     }
 
+
     override onCreateOptionsMenu(Menu menu) {
         val inflater = getMenuInflater()
         inflater.inflate(R.menu.main, menu)
@@ -121,7 +121,8 @@ public class GameOfLifeActivity extends Activity {
     override onPrepareOptionsMenu(Menu menu) {
         val drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerListView)
 
-        if (drawerOpen == true) {
+        if(drawerOpen == true) {
+
             // hide all menus when drawer is open
             for (i : 0 .. menu.size - 1) {
                 var item = menu.getItem(i);
@@ -129,6 +130,7 @@ public class GameOfLifeActivity extends Activity {
             }
 
         } else {
+
             // else, look at the gamestate
             switch (mGameOfLifeView.gameState) {
                 case GameOfLifeView.State.RUNNING: {
@@ -180,6 +182,9 @@ public class GameOfLifeActivity extends Activity {
             }
             case R.id.about: {
                 startActivity(new Intent(this, AboutActivity))
+            }
+            case R.id.donate: {
+                startActivity(new Intent(this, DonateActivity))
             }
         }
         mDrawerLayout.closeDrawer(mDrawerListView)

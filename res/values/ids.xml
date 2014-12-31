@@ -4,4 +4,5 @@
     <item type="id" name="load_from_file" />
     <item type="id" name="settings" />
     <item type="id" name="about" />
+    <item type="id" name="donate" />
 </resources>

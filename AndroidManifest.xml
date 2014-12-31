@@ -9,6 +9,7 @@
         android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
         android:name="be.ppareit.gameoflife.App"
@@ -37,6 +38,9 @@
             android:name="be.ppareit.gameoflife.AboutActivity"
             android:label="@string/about_title"
             android:theme="@android:style/Theme.Dialog" />
+        <activity
+            android:name="be.ppareit.gameoflife.DonateActivity"
+            android:theme="@android:style/Theme.Holo.Dialog" />
         <activity
             android:name="be.ppareit.gameoflife.PreferencesActivity"
             android:label="@string/settings_title" />

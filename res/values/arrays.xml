@@ -47,18 +47,21 @@
         <item>@id/load_from_file</item>
         <item>@id/settings</item>
         <item>@id/about</item>
+        <item>@id/donate</item>
     </integer-array>
     <string-array name="drawer_titles">
         <item>New</item>
         <item>Load from file...</item>
         <item>Settings...</item>
         <item>About...</item>
+        <item>Donate...</item>
     </string-array>
     <array name="drawer_icons">
         <item>@android:drawable/ic_menu_close_clear_cancel</item>
         <item>@drawable/ic_action_sd_storage</item>
         <item>@drawable/ic_action_settings</item>
         <item>@drawable/ic_action_about</item>
+        <item>@drawable/ic_action_favorite</item>
     </array>
 
     <array name="themes">
@@ -75,5 +78,14 @@
         <item>@drawable/cell_white</item>
         <item>@drawable/cell_blue</item>
     </array>
+
+    <string-array name="donate_entries">
+        <item>A cup of coffee (2 euro)</item>
+        <item>A piece of pie (5 euro)</item>
+    </string-array>
+    <string-array name="donate_values">
+        <item>donate_02</item>
+        <item>donate_05</item>
+    </string-array>
 
 </resources>
