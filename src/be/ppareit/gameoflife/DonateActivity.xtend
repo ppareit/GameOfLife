@@ -28,9 +28,9 @@ class DonateActivity extends Activity implements BillingProcessor.IBillingHandle
             resources.getStringArray(R.array.donate_entries))
         val donate_values = resources.getStringArray(R.array.donate_entries)
 
-        var dialog = new AlertDialog.Builder(this) //
+        new AlertDialog.Builder(this) //
         .setIcon(R.drawable.ic_action_favorite) //
-        .setTitle("Donate") //
+        .setTitle(R.string.donate) //
         .setAdapter(donate_options,
             [ dialog, which |
                 Log.d(TAG, "Selected : " + which)
@@ -46,9 +46,8 @@ class DonateActivity extends Activity implements BillingProcessor.IBillingHandle
             [
                 finish()
             ]) //
-        .create()
-
-        dialog.show()
+        .create() //
+        .show()
     }
 
     override onDestroy() {
