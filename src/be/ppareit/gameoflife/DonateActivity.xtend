@@ -26,7 +26,7 @@ class DonateActivity extends Activity implements BillingProcessor.IBillingHandle
         val donate_options = new ArrayAdapter<String>(this,
             android.R.layout.select_dialog_singlechoice,
             resources.getStringArray(R.array.donate_entries))
-        val donate_values = resources.getStringArray(R.array.donate_entries)
+        val donate_values = resources.getStringArray(R.array.donate_values)
 
         new AlertDialog.Builder(this) //
         .setIcon(R.drawable.ic_action_favorite) //
