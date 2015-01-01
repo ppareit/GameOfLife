@@ -42,7 +42,8 @@ import static extension be.ppareit.android.AndroidUtils.*
 @AddLogTag
 class GameOfLifeActivity extends Activity {
 
-    private static final int REQUEST_CHOOSER = 0x0001
+    private static final int REQUEST_LOAD = 0x0001
+    private static final int REQUEST_SAVE = 0x0002
 
     private GameOfLifeView mGameOfLifeView
 
@@ -122,7 +123,6 @@ class GameOfLifeActivity extends Activity {
         val drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerListView)
 
         if(drawerOpen == true) {
-
             // hide all menus when drawer is open
             for (i : 0 .. menu.size - 1) {
                 var item = menu.getItem(i);
@@ -130,7 +130,6 @@ class GameOfLifeActivity extends Activity {
             }
 
         } else {
-
             // else, look at the gamestate
             switch (mGameOfLifeView.gameState) {
                 case GameOfLifeView.State.RUNNING: {
@@ -175,7 +174,13 @@ class GameOfLifeActivity extends Activity {
             case R.id.load_from_file: {
                 pauseGame()
                 var intent = new Intent(this, FileChooserActivity)
-                startActivityForResult(intent, REQUEST_CHOOSER)
+                intent.putExtra("path", applicationInfo.dataDir)
+                startActivityForResult(intent, REQUEST_LOAD)
+            }
+            case R.id.save_to_file: {
+                pauseGame()
+                var intent = new Intent(this, SaveToFileActivity)
+                startActivityForResult(intent, REQUEST_SAVE)
             }
             case R.id.settings: {
                 startActivity(new Intent(this, PreferencesActivity))
@@ -230,10 +235,15 @@ class GameOfLifeActivity extends Activity {
 
     override onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_CHOOSER:
+            case REQUEST_LOAD:
                 if(resultCode == RESULT_OK) {
-                    val uri = data.getData()
+                    val uri = data.data
                     mGameOfLifeView.doLoad(uri)
+                }
+            case REQUEST_SAVE:
+                if (resultCode == RESULT_OK) {
+                    val uri = data.data
+                    mGameOfLifeView.doSave(uri)
                 }
         }
     }

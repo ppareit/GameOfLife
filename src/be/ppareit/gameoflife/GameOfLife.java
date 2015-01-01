@@ -22,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -196,6 +198,35 @@ public class GameOfLife {
     public void setSpawn(int spawnVariable) {
         Log.d(TAG, "Setting spawnvariable to: " + spawnVariable);
         mSpawn = spawnVariable;
+    }
+
+    public void saveGridToFile(OutputStream out) {
+        final int rows = getRows();
+        final int cols = getCols();
+        final int[][] grid = getGrid();
+
+        Set<Point> points = new HashSet<Point>();
+        int minCol = cols;
+        int minRow = rows;
+
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < cols; ++c) {
+                if (grid[r][c] != 0) {
+                    points.add(new Point(c, r));
+                    minCol = Math.min(minCol, c);
+                    minRow = Math.min(minRow, r);
+                }
+            }
+        }
+
+        points = offset(points, -minCol, -minRow);
+
+        PrintWriter writer = new PrintWriter(out);
+        writer.println("#Life 1.06");
+        for (Point pt : points) {
+            writer.println(pt.x + " " + pt.y);
+        }
+        writer.close();
     }
 
 }

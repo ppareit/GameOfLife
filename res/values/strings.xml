@@ -65,6 +65,9 @@
     <string name="file_not_found">File not found.</string>
     <string name="file_format_not_supported">This file format is not supported. Contact developper, see about.</string>
 
+    <string name="save_title">Save to file</string>
+    <string name="save">Save</string>
+
     <string name="donate">Donate</string>
     <string name="donated_thank_user">
         Thank you for your donation.

@@ -21,7 +21,9 @@ package be.ppareit.gameoflife;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -406,4 +408,15 @@ public class GameOfLifeView extends GameLoopView implements
         }
     }
 
+    public void doSave(Uri uri) {
+        Context context = getContext();
+        File file = new File(uri.getPath());
+        try {
+            OutputStream out = new FileOutputStream(file);
+            mGameOfLife.saveGridToFile(out);
+        } catch (FileNotFoundException e) {
+            Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
 }

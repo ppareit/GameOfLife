@@ -45,6 +45,7 @@
     <integer-array name="drawer_ids">
         <item>@id/clear</item>
         <item>@id/load_from_file</item>
+        <item>@id/save_to_file</item>
         <item>@id/settings</item>
         <item>@id/about</item>
         <item>@id/donate</item>
@@ -52,13 +53,15 @@
     <string-array name="drawer_titles">
         <item>New</item>
         <item>Load from file...</item>
+        <item>Save to file...</item>
         <item>Settings...</item>
         <item>About...</item>
         <item>Donate...</item>
     </string-array>
     <array name="drawer_icons">
         <item>@android:drawable/ic_menu_close_clear_cancel</item>
-        <item>@drawable/ic_action_sd_storage</item>
+        <item>@drawable/ic_menu_archive</item>
+        <item>@android:drawable/ic_menu_save</item>
         <item>@drawable/ic_action_settings</item>
         <item>@drawable/ic_action_about</item>
         <item>@drawable/ic_action_favorite</item>
