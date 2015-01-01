@@ -391,6 +391,11 @@ public class GameOfLifeView extends GameLoopView implements
         invalidate();
     }
 
+    public void doLoad(InputStream is) {
+        mGameOfLife.loadGridFromFile(is);
+        invalidate();
+    }
+
     public void doLoad(Uri uri) {
         Context context = getContext();
         try {

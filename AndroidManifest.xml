@@ -48,6 +48,10 @@
             android:name="be.ppareit.gameoflife.PreferencesActivity"
             android:label="@string/settings_title" />
         <activity
+            android:name="be.ppareit.gameoflife.LoadSeedActivity"
+            android:label="@string/save_title"
+            android:theme="@android:style/Theme.Holo.Dialog" />
+        <activity
             android:name="be.ppareit.gameoflife.SaveToFileActivity"
             android:label="@string/save_title"
             android:theme="@android:style/Theme.Holo.Dialog" />

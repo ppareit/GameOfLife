@@ -34,6 +34,7 @@ import org.xtendroid.annotations.AddLogTag
 import static be.ppareit.gameoflife.GameOfLifeActivity.*
 
 import static extension be.ppareit.android.AndroidUtils.*
+import java.io.InputStream
 
 /**
  * Main activity for the Game of Life.
@@ -42,8 +43,9 @@ import static extension be.ppareit.android.AndroidUtils.*
 @AddLogTag
 class GameOfLifeActivity extends Activity {
 
-    private static final int REQUEST_LOAD = 0x0001
-    private static final int REQUEST_SAVE = 0x0002
+    private static final int REQUEST_LOAD_FROM_FILE = 0x0001
+    private static final int REQUEST_LOAD_SEED = 0x0002
+    private static final int REQUEST_SAVE_TO_FILE = 0x0004
 
     private GameOfLifeView mGameOfLifeView
 
@@ -103,7 +105,6 @@ class GameOfLifeActivity extends Activity {
 
     }
 
-
     override onCreateOptionsMenu(Menu menu) {
         val inflater = getMenuInflater()
         inflater.inflate(R.menu.main, menu)
@@ -123,6 +124,7 @@ class GameOfLifeActivity extends Activity {
         val drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerListView)
 
         if(drawerOpen == true) {
+
             // hide all menus when drawer is open
             for (i : 0 .. menu.size - 1) {
                 var item = menu.getItem(i);
@@ -130,6 +132,7 @@ class GameOfLifeActivity extends Activity {
             }
 
         } else {
+
             // else, look at the gamestate
             switch (mGameOfLifeView.gameState) {
                 case GameOfLifeView.State.RUNNING: {
@@ -171,16 +174,21 @@ class GameOfLifeActivity extends Activity {
                 pauseGame()
                 mGameOfLifeView.clearGrid()
             }
+            case R.id.load_seed: {
+                pauseGame()
+                var intent = new Intent(this, LoadSeedActivity)
+                startActivityForResult(intent, GameOfLifeActivity.REQUEST_LOAD_SEED)
+            }
             case R.id.load_from_file: {
                 pauseGame()
                 var intent = new Intent(this, FileChooserActivity)
                 intent.putExtra("path", applicationInfo.dataDir)
-                startActivityForResult(intent, REQUEST_LOAD)
+                startActivityForResult(intent, GameOfLifeActivity.REQUEST_LOAD_FROM_FILE)
             }
             case R.id.save_to_file: {
                 pauseGame()
                 var intent = new Intent(this, SaveToFileActivity)
-                startActivityForResult(intent, REQUEST_SAVE)
+                startActivityForResult(intent, GameOfLifeActivity.REQUEST_SAVE_TO_FILE)
             }
             case R.id.settings: {
                 startActivity(new Intent(this, PreferencesActivity))
@@ -235,13 +243,19 @@ class GameOfLifeActivity extends Activity {
 
     override onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_LOAD:
+            case GameOfLifeActivity.REQUEST_LOAD_SEED:
+                if(resultCode == RESULT_OK) {
+                    val path = data.getStringExtra("seed")
+                    var in = assets.open(path)
+                    mGameOfLifeView.doLoad(in)
+                }
+            case GameOfLifeActivity.REQUEST_LOAD_FROM_FILE:
                 if(resultCode == RESULT_OK) {
                     val uri = data.data
                     mGameOfLifeView.doLoad(uri)
                 }
-            case REQUEST_SAVE:
-                if (resultCode == RESULT_OK) {
+            case GameOfLifeActivity.REQUEST_SAVE_TO_FILE:
+                if(resultCode == RESULT_OK) {
                     val uri = data.data
                     mGameOfLifeView.doSave(uri)
                 }
