@@ -9,7 +9,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.preference.PreferenceManager
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
@@ -40,6 +39,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     private val editListener = EditListener()
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
     private val drawMatrix = Matrix()
+    var onUndoStateChanged: ((Boolean) -> Unit)? = null
 
     init {
         val settings = Settings.getSettings(context)
@@ -54,7 +54,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         }
 
         setTargetFps(settings.getAnimationSpeed())
-        PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this)
+        Settings.getPreferences(context).registerOnSharedPreferenceChangeListener(this)
         initTheme(context)
     }
 
@@ -74,7 +74,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
 
     fun setMode(mode: State) {
         if (mode == State.RUNNING && state != State.RUNNING) {
-            undoManager?.pushState()
+            pushUndoState()
             startGameLoop()
             state = State.RUNNING
         } else if (mode == State.EDITING && state != State.EDITING) {
@@ -160,7 +160,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
             val row = pts[1].toInt()
             val col = pts[0].toInt()
             if (row in 0 until game.getRows() && col in 0 until game.getCols()) {
-                undoManager?.pushState()
+                pushUndoState()
                 game.grid[row][col] = if (game.grid[row][col] != 0) 0 else 1
             }
             return true
@@ -173,7 +173,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         private var previousFlippedTime = 0L
 
         fun onTouchEvent(event: MotionEvent) {
-            undoManager?.pushState()
+            pushUndoState()
             for (index in 0 until event.historySize) {
                 doEdit(event.getHistoricalX(index).toInt(), event.getHistoricalY(index).toInt())
             }
@@ -234,13 +234,13 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     }
 
     fun clearGrid() {
-        undoManager?.pushState()
+        pushUndoState()
         gameOfLife?.resetGrid()
         invalidate()
     }
 
     fun doSingleStep() {
-        undoManager?.pushState()
+        pushUndoState()
         gameOfLife?.generateNextGeneration()
         invalidate()
     }
@@ -249,11 +249,13 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
 
     fun doUndo() {
         undoManager?.popState()
+        notifyUndoStateChanged()
         invalidate()
     }
 
     fun doLoad(inputStream: InputStream) {
         gameOfLife?.loadGridFromFile(inputStream)
+        notifyUndoStateChanged()
         invalidate()
     }
 
@@ -263,6 +265,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
                 if (input == null) throw FileNotFoundException()
                 gameOfLife?.loadGridFromFile(input)
             }
+            notifyUndoStateChanged()
             invalidate()
         } catch (e: FileNotFoundException) {
             Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show()
@@ -280,6 +283,15 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         } catch (e: FileNotFoundException) {
             Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun pushUndoState() {
+        undoManager?.pushState()
+        notifyUndoStateChanged()
+    }
+
+    private fun notifyUndoStateChanged() {
+        onUndoStateChanged?.invoke(canUndo())
     }
 
     companion object {

@@ -15,12 +15,12 @@ captures/
 # Local machine configuration
 local.properties
 
-# Generated Android artifacts
+# Generated APKs and bundles
 *.apk
 *.ap_
 *.aab
 
-# JVM / Android build artifacts
+# Java / Kotlin build artifacts
 *.class
 *.dex
 

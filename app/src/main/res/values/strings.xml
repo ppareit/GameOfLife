@@ -2,17 +2,23 @@
 <resources>
 
     <string name="app_name">Game Of Life</string>
-    <string name="pause_label">Pause</string>
-    <string name="undo_label">Undo</string>
-    <string name="single_step_label">Single step</string>
-    <string name="start_label">Start</string>
-    <string name="edit_label">Edit</string>
-    <string name="file_label">File</string>
-    <string name="load_label">Load...</string>
-    <string name="save_label">Save...</string>
-    <string name="move_label">Move</string>
-    <string name="clear_label">Clear</string>
+    <string name="menu_label">Menu</string>
+    <string name="new_label">New</string>
+    <string name="load_seed_label">Load seed...</string>
+    <string name="load_from_file_label">Load from file...</string>
+    <string name="save_to_file_label">Save to file...</string>
+    <string name="settings_label">Settings...</string>
     <string name="about_label">About...</string>
+    <string name="pause_label">Pause</string>
+    <string name="start_label">Start</string>
+    <string name="step_label">Step</string>
+    <string name="undo_label">Undo</string>
+    <string name="edit_label">Edit</string>
+    <string name="move_label">Move</string>
+    <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
+    <string name="file_name">File name</string>
+    <string name="no_seeds_found">No seeds found.</string>
     <string name="about_title">About Conway\'s Game of Life</string>
     <string name="about_text"><b>Description:</b>    The Game of Life, also known simply as Life, is a 
     cellular automaton devised by the British mathematician 
@@ -43,9 +49,7 @@
     \n\n<b>Artwork: </b>Birgit Niemegeers (birgit.niemegeers@gmail.com)
     \n\n<b>Version: %1$s</b>
     </string>
-    <string name="settings_label">Settings...</string>
     <string name="settings_title">Game of Life Settings</string>
-    <string name="settings_shortcut">s</string>
     <string name="population_settings_title">Population settings</string>
     <string name="underpopulation_title">Minimum variable</string>
     <string name="underpopulation_summary">    Any live cell with fewer than the minimum number of live
@@ -69,10 +73,5 @@
 
     <string name="save_title">Save to file</string>
     <string name="save">Save</string>
-
-    <string name="donate">Donate</string>
-    <string name="donated_thank_user">
-        Thank you for your donation.
-    </string>
 
 </resources>

@@ -1,10 +1,10 @@
 package be.ppareit.gameoflife
 
 import android.content.Context
-import android.preference.PreferenceManager
+import android.content.SharedPreferences
 
 class Settings private constructor(context: Context) {
-    private val pref = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+    private val pref = getPreferences(context)
     val cols: Int = 60
     val rows: Int = 60
 
@@ -37,5 +37,10 @@ class Settings private constructor(context: Context) {
 
     companion object {
         fun getSettings(context: Context): Settings = Settings(context)
+
+        fun getPreferences(context: Context): SharedPreferences {
+            val appContext = context.applicationContext
+            return appContext.getSharedPreferences("${appContext.packageName}_preferences", Context.MODE_PRIVATE)
+        }
     }
 }

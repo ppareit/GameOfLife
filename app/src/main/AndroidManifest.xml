@@ -3,7 +3,9 @@
     android:versionCode="20002"
     android:versionName="2.0.2" >
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <application
         android:name="be.ppareit.gameoflife.App"
@@ -32,24 +34,6 @@
                 <data android:host="*" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="be.ppareit.gameoflife.AboutActivity"
-            android:label="@string/about_title"
-            android:theme="@android:style/Theme.Holo.Dialog" />
-        <activity
-            android:name="be.ppareit.gameoflife.DonateActivity"
-            android:theme="@android:style/Theme.Holo.Dialog" />
-        <activity
-            android:name="be.ppareit.gameoflife.PreferencesActivity"
-            android:label="@string/settings_title" />
-        <activity
-            android:name="be.ppareit.gameoflife.LoadSeedActivity"
-            android:label="@string/save_title"
-            android:theme="@android:style/Theme.Holo.Dialog" />
-        <activity
-            android:name="be.ppareit.gameoflife.SaveToFileActivity"
-            android:label="@string/save_title"
-            android:theme="@android:style/Theme.Holo.Dialog" />
     </application>
 
 </manifest>
