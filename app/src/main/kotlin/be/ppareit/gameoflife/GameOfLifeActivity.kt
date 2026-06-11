@@ -8,7 +8,7 @@ class GameOfLifeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            GameOfLifeScreen(initialIntent = intent)
+            GameOfLifeScreen(initialUri = intent.data)
         }
     }
 }

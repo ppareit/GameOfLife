@@ -1,7 +1,6 @@
 package be.ppareit.gameoflife
 
-import android.content.Intent
-import androidx.activity.ComponentActivity
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,15 +33,16 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameOfLifeScreen(initialIntent: Intent?) {
-    val activity = LocalContext.current as ComponentActivity
+fun GameOfLifeScreen(initialUri: Uri?) {
+    val context = LocalContext.current
+    val assets = context.assets
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var gameView by remember { mutableStateOf<GameOfLifeView?>(null) }
     var mode by remember { mutableStateOf(GameOfLifeView.State.MOVING) }
     var canUndo by remember { mutableStateOf(false) }
     var activeDialog by remember { mutableStateOf<ActiveDialog?>(null) }
-    val seeds = remember { activity.assets.list("life106")?.sorted().orEmpty() }
+    val seeds = remember(assets) { assets.list("life106")?.sorted().orEmpty() }
 
     val loadFromFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument(),
@@ -65,10 +65,9 @@ fun GameOfLifeScreen(initialIntent: Intent?) {
         drawerState.open()
     }
 
-    LaunchedEffect(gameView, initialIntent?.data) {
-        val uri = initialIntent?.data
-        if (gameView != null && uri != null) {
-            gameView?.doLoad(uri)
+    LaunchedEffect(gameView, initialUri) {
+        if (gameView != null && initialUri != null) {
+            gameView?.doLoad(initialUri)
         }
     }
 
@@ -183,7 +182,7 @@ fun GameOfLifeScreen(initialIntent: Intent?) {
                 onDismiss = { activeDialog = null },
                 onSeedSelected = { seed ->
                     activeDialog = null
-                    activity.assets.open("life106/$seed").use { gameView?.doLoad(it) }
+                    assets.open("life106/$seed").use { gameView?.doLoad(it) }
                 },
             )
             ActiveDialog.Settings -> SettingsDialog(onDismiss = { activeDialog = null })
