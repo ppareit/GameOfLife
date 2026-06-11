@@ -50,6 +50,12 @@ fun GameOfLifeScreen(initialIntent: Intent?) {
         uri?.let { gameView?.doLoad(it) }
     }
 
+    val saveToFileLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/octet-stream"),
+    ) { uri ->
+        uri?.let { gameView?.doSave(it) }
+    }
+
     fun moveMode() {
         gameView?.setMode(GameOfLifeView.State.MOVING)
         mode = GameOfLifeView.State.MOVING
@@ -98,7 +104,7 @@ fun GameOfLifeScreen(initialIntent: Intent?) {
                     },
                     onSaveToFile = {
                         moveMode()
-                        activeDialog = ActiveDialog.SaveToFile
+                        saveToFileLauncher.launch("game-of-life.life")
                         scope.launch { drawerState.close() }
                     },
                     onSettings = {
@@ -180,13 +186,6 @@ fun GameOfLifeScreen(initialIntent: Intent?) {
                     activity.assets.open("life106/$seed").use { gameView?.doLoad(it) }
                 },
             )
-            ActiveDialog.SaveToFile -> SaveToFileDialog(
-                onDismiss = { activeDialog = null },
-                onSave = { uri ->
-                    activeDialog = null
-                    gameView?.doSave(uri)
-                },
-            )
             ActiveDialog.Settings -> SettingsDialog(onDismiss = { activeDialog = null })
             null -> Unit
         }
@@ -196,6 +195,5 @@ fun GameOfLifeScreen(initialIntent: Intent?) {
 private enum class ActiveDialog {
     About,
     SeedPicker,
-    SaveToFile,
     Settings,
 }

@@ -17,7 +17,6 @@
     <string name="move_label">Move</string>
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>
-    <string name="file_name">File name</string>
     <string name="no_seeds_found">No seeds found.</string>
     <string name="about_title">About Conway\'s Game of Life</string>
     <string name="about_text"><b>Description:</b>    The Game of Life, also known simply as Life, is a 
