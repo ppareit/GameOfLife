@@ -18,6 +18,7 @@ import android.view.ScaleGestureDetector
 import android.view.WindowManager
 import android.widget.Toast
 import be.ppareit.android.GameLoopView
+import be.ppareit.gameoflife.patterns.PatternFormatException
 import java.io.FileNotFoundException
 import java.io.InputStream
 
@@ -269,7 +270,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
             invalidate()
         } catch (e: FileNotFoundException) {
             Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show()
-        } catch (e: GameOfLife.FormatNotSupportedException) {
+        } catch (e: PatternFormatException) {
             Toast.makeText(context, R.string.file_format_not_supported, Toast.LENGTH_LONG).show()
         }
     }

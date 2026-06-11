@@ -1,12 +1,11 @@
 package be.ppareit.gameoflife
 
-import android.graphics.Point
 import android.util.Log
-import java.io.BufferedReader
+import be.ppareit.gameoflife.patterns.GridPoint
+import be.ppareit.gameoflife.patterns.Life106Format
+import be.ppareit.gameoflife.patterns.PatternFormats
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.io.OutputStream
-import java.io.PrintWriter
 
 class GameOfLife(private val rows: Int, private val cols: Int) {
     private var minimum = 2
@@ -24,44 +23,23 @@ class GameOfLife(private val rows: Int, private val cols: Int) {
         }
     }
 
-    class FormatNotSupportedException : RuntimeException()
-
     fun loadGridFromFile(inputStream: InputStream) {
-        val points = mutableSetOf<Point>()
-        var minX = Int.MAX_VALUE
-        var maxX = Int.MIN_VALUE
-        var minY = Int.MAX_VALUE
-        var maxY = Int.MIN_VALUE
-
-        BufferedReader(InputStreamReader(inputStream)).use { reader ->
-            val firstLine = reader.readLine()
-            if (firstLine != "#Life 1.06") {
-                throw FormatNotSupportedException()
-            }
-
-            reader.lineSequence().forEach { line ->
-                if (line.isBlank()) return@forEach
-                val coords = line.trim().split(Regex("\\s+"))
-                val x = coords[0].toInt()
-                val y = coords[1].toInt()
-                points.add(Point(x, y))
-                minX = minOf(x, minX)
-                maxX = maxOf(x, maxX)
-                minY = minOf(y, minY)
-                maxY = maxOf(y, maxY)
-            }
-        }
+        val points = PatternFormats.read(inputStream).cells
 
         if (points.isEmpty()) {
             resetGrid()
             return
         }
 
+        val minX = points.minOf { it.x }
+        val maxX = points.maxOf { it.x }
+        val minY = points.minOf { it.y }
+        val maxY = points.maxOf { it.y }
         val shifted = offset(points, -minX, -minY)
         loadGrid(shifted, maxX - minX, maxY - minY)
     }
 
-    private fun loadGrid(points: Set<Point>, maxX: Int, maxY: Int) {
+    private fun loadGrid(points: Set<GridPoint>, maxX: Int, maxY: Int) {
         resetGrid()
         val rowOffset = (getRows() - maxY) / 2
         val colOffset = (getCols() - maxX) / 2
@@ -130,14 +108,14 @@ class GameOfLife(private val rows: Int, private val cols: Int) {
     }
 
     fun saveGridToFile(outputStream: OutputStream) {
-        val points = mutableSetOf<Point>()
+        val points = mutableSetOf<GridPoint>()
         var minCol = cols
         var minRow = rows
 
         for (row in 0 until rows) {
             for (col in 0 until cols) {
                 if (grid[row][col] != 0) {
-                    points.add(Point(col, row))
+                    points.add(GridPoint(col, row))
                     minCol = minOf(minCol, col)
                     minRow = minOf(minRow, row)
                 }
@@ -145,20 +123,15 @@ class GameOfLife(private val rows: Int, private val cols: Int) {
         }
 
         val shifted = if (points.isEmpty()) points else offset(points, -minCol, -minRow)
-        PrintWriter(outputStream).use { writer ->
-            writer.println("#Life 1.06")
-            for (point in shifted) {
-                writer.println("${point.x} ${point.y}")
-            }
-        }
+        Life106Format.write(shifted, outputStream)
     }
 
     companion object {
         private val TAG = GameOfLife::class.java.simpleName
 
-        private fun offset(points: Set<Point>, dx: Int, dy: Int): MutableSet<Point> {
+        private fun offset(points: Set<GridPoint>, dx: Int, dy: Int): MutableSet<GridPoint> {
             return points.mapTo(mutableSetOf()) { point ->
-                Point(point.x + dx, point.y + dy)
+                GridPoint(point.x + dx, point.y + dy)
             }
         }
     }
