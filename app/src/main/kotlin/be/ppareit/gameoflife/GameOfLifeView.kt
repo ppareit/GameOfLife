@@ -101,7 +101,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), canvasPaint)
         canvas.save()
         canvas.concat(drawMatrix)
-        canvas.drawRect(0f, 0f, rows.toFloat(), cols.toFloat(), backgroundPaint)
+        canvas.drawRect(0f, 0f, cols.toFloat(), rows.toFloat(), backgroundPaint)
 
         var left = 0
         var top = 0
