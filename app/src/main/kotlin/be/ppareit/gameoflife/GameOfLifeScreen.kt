@@ -4,8 +4,12 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,8 +30,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.launch
 
@@ -84,6 +90,7 @@ fun GameOfLifeScreen(initialUri: Uri?) {
     ) {
         ModalNavigationDrawer(
             drawerState = drawerState,
+            gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 GameDrawer(
                     onNew = {
@@ -153,25 +160,53 @@ fun GameOfLifeScreen(initialUri: Uri?) {
                     )
                 },
             ) { padding ->
-                AndroidView(
-                    factory = { context ->
-                        GameOfLifeView(context, null).also { view ->
-                            gameView = view
-                            view.onUndoStateChanged = { canUndo = it }
-                            canUndo = view.canUndo()
-                            view.setMode(mode)
-                        }
-                    },
+                Box(
                     modifier = Modifier
                         .padding(padding)
                         .fillMaxSize(),
-                    update = { view ->
-                        view.onUndoStateChanged = { canUndo = it }
-                        if (view.getGameState() != mode) {
-                            view.setMode(mode)
-                        }
-                    },
-                )
+                ) {
+                    AndroidView(
+                        factory = { context ->
+                            GameOfLifeView(context, null).also { view ->
+                                gameView = view
+                                view.onUndoStateChanged = { canUndo = it }
+                                canUndo = view.canUndo()
+                                view.setMode(mode)
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                        update = { view ->
+                            view.onUndoStateChanged = { canUndo = it }
+                            if (view.getGameState() != mode) {
+                                view.setMode(mode)
+                            }
+                        },
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(24.dp)
+                            .pointerInput(drawerState.isClosed) {
+                                if (!drawerState.isClosed) return@pointerInput
+
+                                var dragDistance = 0f
+                                detectHorizontalDragGestures(
+                                    onDragStart = { dragDistance = 0f },
+                                    onHorizontalDrag = { change, dragAmount ->
+                                        if (dragAmount > 0) {
+                                            dragDistance += dragAmount
+                                            change.consume()
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        if (dragDistance > 48f) {
+                                            scope.launch { drawerState.open() }
+                                        }
+                                    },
+                                )
+                            },
+                    )
+                }
             }
         }
 
