@@ -17,6 +17,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.core.graphics.withMatrix
 import be.ppareit.android.GameLoopView
 import be.ppareit.gameoflife.patterns.PatternFormatException
 import java.io.FileNotFoundException
@@ -95,27 +96,26 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         val grid = game.grid
 
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), canvasPaint)
-        canvas.save()
-        canvas.concat(drawMatrix)
-        canvas.drawRect(0f, 0f, cols.toFloat(), rows.toFloat(), backgroundPaint)
+        canvas.withMatrix(drawMatrix) {
+            drawRect(0f, 0f, cols.toFloat(), rows.toFloat(), backgroundPaint)
 
-        var left = 0
-        var top = 0
-        for (row in 0 until rows) {
-            for (col in 0 until cols) {
-                val cell = if (grid[row][col] != 0) liveCell else deadCell
-                cell.setBounds(left, top, left + 1, top + 1)
-                cell.draw(canvas)
-                if (top + 1 > rows) {
-                    cell.setBounds(left, top - rows, left + 1, top - rows + 1)
-                    cell.draw(canvas)
+            var left = 0
+            var top = 0
+            for (row in 0 until rows) {
+                for (col in 0 until cols) {
+                    val cell = if (grid[row][col] != 0) liveCell else deadCell
+                    cell.setBounds(left, top, left + 1, top + 1)
+                    cell.draw(this)
+                    if (top + 1 > rows) {
+                        cell.setBounds(left, top - rows, left + 1, top - rows + 1)
+                        cell.draw(this)
+                    }
+                    left += 1
                 }
-                left += 1
+                left = 0
+                top += 1
             }
-            left = 0
-            top += 1
         }
-        canvas.restore()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
