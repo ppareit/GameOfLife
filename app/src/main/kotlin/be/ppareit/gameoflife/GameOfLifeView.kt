@@ -263,9 +263,9 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
             }
             notifyUndoStateChanged()
             invalidate()
-        } catch (e: FileNotFoundException) {
+        } catch (_: FileNotFoundException) {
             Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show()
-        } catch (e: PatternFormatException) {
+        } catch (_: PatternFormatException) {
             Toast.makeText(context, R.string.file_format_not_supported, Toast.LENGTH_LONG).show()
         }
     }
@@ -276,7 +276,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
                 if (output == null) throw FileNotFoundException()
                 gameOfLife?.saveGridToFile(output)
             }
-        } catch (e: FileNotFoundException) {
+        } catch (_: FileNotFoundException) {
             Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show()
         }
     }
