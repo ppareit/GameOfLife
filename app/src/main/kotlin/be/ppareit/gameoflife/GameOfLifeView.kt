@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Matrix
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
 import android.util.DisplayMetrics
@@ -17,7 +14,6 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.core.graphics.withMatrix
 import be.ppareit.android.GameLoopView
 import be.ppareit.gameoflife.patterns.PatternFormatException
 import java.io.FileNotFoundException
@@ -33,10 +29,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     }
 
     private var state = State.MOVING
-    private var canvasPaint = Paint().apply { color = Color.GRAY }
-    private var backgroundPaint = Paint()
-    private lateinit var liveCell: Drawable
-    private lateinit var deadCell: Drawable
+    private val renderer = GameOfLifeRenderer(context)
     private val moveDetector = GestureDetector(context, MoveListener())
     private val editListener = EditListener()
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
@@ -57,16 +50,6 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
 
         setTargetFps(settings.getAnimationSpeed())
         Settings.getPreferences(context).registerOnSharedPreferenceChangeListener(this)
-        initTheme(context)
-    }
-
-    private fun initTheme(context: Context) {
-        val theme = Settings.getSettings(context).getDisplayTheme()
-        backgroundPaint = Paint().apply {
-            color = context.getColor(theme.backgroundColorRes)
-        }
-        deadCell = requireNotNull(context.getDrawable(theme.deadCellDrawableRes))
-        liveCell = requireNotNull(context.getDrawable(theme.liveCellDrawableRes))
     }
 
     fun setMode(mode: State) {
@@ -91,31 +74,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
 
     override fun onDraw(canvas: Canvas) {
         val game = gameOfLife ?: return
-        val rows = game.getRows()
-        val cols = game.getCols()
-        val grid = game.grid
-
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), canvasPaint)
-        canvas.withMatrix(drawMatrix) {
-            drawRect(0f, 0f, cols.toFloat(), rows.toFloat(), backgroundPaint)
-
-            var left = 0
-            var top = 0
-            for (row in 0 until rows) {
-                for (col in 0 until cols) {
-                    val cell = if (grid[row][col] != 0) liveCell else deadCell
-                    cell.setBounds(left, top, left + 1, top + 1)
-                    cell.draw(this)
-                    if (top + 1 > rows) {
-                        cell.setBounds(left, top - rows, left + 1, top - rows + 1)
-                        cell.draw(this)
-                    }
-                    left += 1
-                }
-                left = 0
-                top += 1
-            }
-        }
+        renderer.draw(canvas, width, height, game, drawMatrix)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
@@ -124,7 +83,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         gameOfLife?.setOverPopulation(settings.getMaximumVariable())
         gameOfLife?.setSpawn(settings.getSpawnVariable())
         setTargetFps(settings.getAnimationSpeed())
-        initTheme(context)
+        renderer.updateTheme()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
