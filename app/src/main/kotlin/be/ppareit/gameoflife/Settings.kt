@@ -21,14 +21,8 @@ class Settings private constructor(context: Context) {
     fun getSpawnVariable(): Int = getStringAsInt("spawn_variable", 3)
     fun getAnimationSpeed(): Int = getStringAsInt("animation_speed", 10)
 
-    fun getDisplayTheme(): Int {
-        val themeIndex = pref.getString("display_theme", "0")?.toIntOrNull() ?: 0
-        val themes = App.app.resources.obtainTypedArray(R.array.themes)
-        return try {
-            themes.getResourceId(themeIndex, R.array.dark_theme)
-        } finally {
-            themes.recycle()
-        }
+    fun getDisplayTheme(): BoardThemeSpec {
+        return BoardThemes.findById(pref.getString("display_theme", BoardThemes.default().id))
     }
 
     private fun getStringAsInt(key: String, defaultValue: Int): Int {

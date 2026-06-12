@@ -40,8 +40,9 @@ fun SettingsDialog(onDismiss: () -> Unit) {
     val populationValues = stringArrayResource(R.array.population_values).toList()
     val speedOptions = stringArrayResource(R.array.animation_speed_options).toList()
     val speedValues = stringArrayResource(R.array.animation_speed_values).toList()
-    val themeOptions = stringArrayResource(R.array.display_theme_options).toList()
-    val themeValues = stringArrayResource(R.array.display_theme_values).toList()
+    val boardThemes = BoardThemes.all()
+    val themeOptions = boardThemes.map { stringResource(it.labelRes) }
+    val themeValues = boardThemes.map { it.id }
     val underpopulationTitle = stringResource(R.string.underpopulation_title)
     val overpopulationTitle = stringResource(R.string.overpopulation_title)
     val spawnTitle = stringResource(R.string.spawn_title)
@@ -51,7 +52,9 @@ fun SettingsDialog(onDismiss: () -> Unit) {
     var maximumValue by remember { mutableStateOf(preferences.getString(KEY_MAXIMUM_VARIABLE, "3") ?: "3") }
     var spawnValue by remember { mutableStateOf(preferences.getString(KEY_SPAWN_VARIABLE, "3") ?: "3") }
     var speedValue by remember { mutableStateOf(preferences.getString(KEY_ANIMATION_SPEED, "10") ?: "10") }
-    var themeValue by remember { mutableStateOf(preferences.getString(KEY_DISPLAY_THEME, "0") ?: "0") }
+    var themeValue by remember {
+        mutableStateOf(BoardThemes.findById(preferences.getString(KEY_DISPLAY_THEME, BoardThemes.default().id)).id)
+    }
     var activeChoice by remember { mutableStateOf<PreferenceChoice?>(null) }
 
     fun updatePreference(key: String, value: String) {

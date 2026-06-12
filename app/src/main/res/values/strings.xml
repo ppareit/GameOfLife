@@ -65,6 +65,8 @@
     <string name="display_settings_title">Display settings</string>
     <string name="speed_title">Animation speed</string>
     <string name="theme_title">Display theme</string>
+    <string name="board_theme_light">Light theme</string>
+    <string name="board_theme_dark">Dark theme</string>
     <string name="file_not_found">File not found.</string>
     <string name="file_format_not_supported">This file format is not supported. Contact developper, see about.</string>
 

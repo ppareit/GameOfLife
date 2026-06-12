@@ -61,16 +61,11 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
 
     private fun initTheme(context: Context) {
         val theme = Settings.getSettings(context).getDisplayTheme()
-        val themeData = resources.obtainTypedArray(theme)
-        try {
-            backgroundPaint = Paint().apply {
-                color = themeData.getColor(0, Color.BLACK)
-            }
-            deadCell = requireNotNull(themeData.getDrawable(1))
-            liveCell = requireNotNull(themeData.getDrawable(2))
-        } finally {
-            themeData.recycle()
+        backgroundPaint = Paint().apply {
+            color = context.getColor(theme.backgroundColorRes)
         }
+        deadCell = requireNotNull(context.getDrawable(theme.deadCellDrawableRes))
+        liveCell = requireNotNull(context.getDrawable(theme.liveCellDrawableRes))
     }
 
     fun setMode(mode: State) {
