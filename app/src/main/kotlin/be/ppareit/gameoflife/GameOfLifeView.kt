@@ -4,15 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Canvas
-import android.graphics.Matrix
 import android.net.Uri
 import android.util.AttributeSet
-import android.util.DisplayMetrics
-import android.util.Log
-import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.WindowManager
 import android.widget.Toast
 import be.ppareit.android.GameLoopView
 import be.ppareit.gameoflife.patterns.PatternFormatException
@@ -30,10 +24,12 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
 
     private var state = State.MOVING
     private val renderer = GameOfLifeRenderer(context)
-    private val moveDetector = GestureDetector(context, MoveListener())
-    private val editListener = EditListener()
-    private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
-    private val drawMatrix = Matrix()
+    private val touchController = GameOfLifeTouchController(
+        context = context,
+        getGame = { gameOfLife },
+        onBeforeGridMutation = { pushUndoState() },
+        onInvalidate = { invalidate() },
+    )
     var onUndoStateChanged: ((Boolean) -> Unit)? = null
 
     init {
@@ -74,7 +70,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
 
     override fun onDraw(canvas: Canvas) {
         val game = gameOfLife ?: return
-        renderer.draw(canvas, width, height, game, drawMatrix)
+        renderer.draw(canvas, width, height, game, touchController.drawMatrix)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
@@ -87,104 +83,12 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        drawMatrix.reset()
-        val game = gameOfLife ?: return
-        drawMatrix.postTranslate(-game.getCols() / 2f, -game.getRows() / 2f)
-
-        val metrics = DisplayMetrics()
-        @Suppress("DEPRECATION")
-        (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.getMetrics(metrics)
-        val scale = 20 * metrics.density
-        drawMatrix.postScale(scale, scale)
-        Log.d(TAG, "Size changed, new scale: $scale")
-        drawMatrix.postTranslate(width / 2f, height / 2f)
-    }
-
-    private inner class MoveListener : GestureDetector.SimpleOnGestureListener() {
-        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-            drawMatrix.postTranslate(-distanceX, -distanceY)
-            return true
-        }
-
-        override fun onSingleTapUp(e: MotionEvent): Boolean {
-            val game = gameOfLife ?: return true
-            val pts = floatArrayOf(e.x, e.y)
-            val inverse = Matrix()
-            drawMatrix.invert(inverse)
-            inverse.mapPoints(pts)
-            val row = pts[1].toInt()
-            val col = pts[0].toInt()
-            if (row in 0 until game.getRows() && col in 0 until game.getCols()) {
-                pushUndoState()
-                game.grid[row][col] = if (game.grid[row][col] != 0) 0 else 1
-            }
-            return true
-        }
-    }
-
-    private inner class EditListener {
-        private var previousFlippedRow = -1
-        private var previousFlippedCol = -1
-        private var previousFlippedTime = 0L
-
-        fun onTouchEvent(event: MotionEvent) {
-            pushUndoState()
-            for (index in 0 until event.historySize) {
-                doEdit(event.getHistoricalX(index).toInt(), event.getHistoricalY(index).toInt())
-            }
-            doEdit(event.x.toInt(), event.y.toInt())
-        }
-
-        private fun doEdit(x: Int, y: Int) {
-            val game = gameOfLife ?: return
-            val pts = floatArrayOf(x.toFloat(), y.toFloat())
-            val inverse = Matrix()
-            drawMatrix.invert(inverse)
-            inverse.mapPoints(pts)
-            val col = pts[0].toInt()
-            val row = pts[1].toInt()
-            if (row in 0 until game.getRows() && col in 0 until game.getCols()) {
-                val now = System.currentTimeMillis()
-                if (previousFlippedCol == col && previousFlippedRow == row && previousFlippedTime + 500 > now) {
-                    return
-                }
-                previousFlippedCol = col
-                previousFlippedRow = row
-                previousFlippedTime = now
-                game.grid[row][col] = if (game.grid[row][col] != 0) 0 else 1
-            }
-        }
-    }
-
-    private fun getScale(): Float = drawMatrix.mapRadius(1f)
-
-    private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        override fun onScale(detector: ScaleGestureDetector): Boolean {
-            val factor = detector.scaleFactor
-            val scale = factor * getScale()
-            if (scale < 10f || scale > 100f) return false
-            drawMatrix.postScale(factor, factor, detector.focusX, detector.focusY)
-            Log.d(TAG, "New scale: ${getScale()}")
-            return true
-        }
+        touchController.onSizeChanged(width, height)
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        when (state) {
-            State.EDITING -> {
-                scaleDetector.onTouchEvent(event)
-                if (!scaleDetector.isInProgress) {
-                    editListener.onTouchEvent(event)
-                }
-            }
-            State.MOVING,
-            State.RUNNING -> {
-                scaleDetector.onTouchEvent(event)
-                moveDetector.onTouchEvent(event)
-            }
-        }
-        invalidate()
+        touchController.onTouchEvent(event, state)
         return true
     }
 
@@ -250,7 +154,6 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     }
 
     companion object {
-        private val TAG = GameOfLifeView::class.java.simpleName
         private var gameOfLife: GameOfLife? = null
         private var undoManager: UndoManager? = null
     }
