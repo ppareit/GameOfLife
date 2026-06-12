@@ -2,12 +2,10 @@ package be.ppareit.gameoflife
 
 import android.content.Context
 import android.graphics.Matrix
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import android.view.WindowManager
 
 class GameOfLifeTouchController(
     context: Context,
@@ -15,7 +13,7 @@ class GameOfLifeTouchController(
     private val onBeforeGridMutation: () -> Unit,
     private val onInvalidate: () -> Unit,
 ) {
-    private val appContext = context.applicationContext
+    private val initialCellScale = INITIAL_CELL_SIZE_DP * context.resources.displayMetrics.density
     val drawMatrix = Matrix()
     private val moveDetector = GestureDetector(context, MoveListener())
     private val editListener = EditListener()
@@ -26,12 +24,8 @@ class GameOfLifeTouchController(
         val game = getGame() ?: return
         drawMatrix.postTranslate(-game.getCols() / 2f, -game.getRows() / 2f)
 
-        val metrics = DisplayMetrics()
-        @Suppress("DEPRECATION")
-        (appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.getMetrics(metrics)
-        val scale = INITIAL_CELL_SIZE_DP * metrics.density
-        drawMatrix.postScale(scale, scale)
-        Log.d(TAG, "Size changed, new scale: $scale")
+        drawMatrix.postScale(initialCellScale, initialCellScale)
+        Log.d(TAG, "Size changed, new scale: $initialCellScale")
         drawMatrix.postTranslate(width / 2f, height / 2f)
     }
 
@@ -52,15 +46,19 @@ class GameOfLifeTouchController(
         onInvalidate()
     }
 
-    private fun mapToGrid(x: Float, y: Float): Pair<Int, Int> {
+    private fun mapToGrid(x: Float, y: Float): GridCell {
         val pts = floatArrayOf(x, y)
         val inverse = Matrix()
         drawMatrix.invert(inverse)
         inverse.mapPoints(pts)
-        return pts[1].toInt() to pts[0].toInt()
+        return GridCell(row = pts[1].toInt(), col = pts[0].toInt())
     }
 
     private fun getScale(): Float = drawMatrix.mapRadius(1f)
+
+    private fun toggleCell(game: GameOfLife, cell: GridCell) {
+        game.grid[cell.row][cell.col] = if (game.grid[cell.row][cell.col] != 0) 0 else 1
+    }
 
     private inner class MoveListener : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
@@ -70,10 +68,10 @@ class GameOfLifeTouchController(
 
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             val game = getGame() ?: return true
-            val (row, col) = mapToGrid(e.x, e.y)
-            if (row in 0 until game.getRows() && col in 0 until game.getCols()) {
+            val cell = mapToGrid(e.x, e.y)
+            if (cell.row in 0 until game.getRows() && cell.col in 0 until game.getCols()) {
                 onBeforeGridMutation()
-                game.grid[row][col] = if (game.grid[row][col] != 0) 0 else 1
+                toggleCell(game, cell)
             }
             return true
         }
@@ -94,16 +92,16 @@ class GameOfLifeTouchController(
 
         private fun doEdit(x: Float, y: Float) {
             val game = getGame() ?: return
-            val (row, col) = mapToGrid(x, y)
-            if (row in 0 until game.getRows() && col in 0 until game.getCols()) {
+            val cell = mapToGrid(x, y)
+            if (cell.row in 0 until game.getRows() && cell.col in 0 until game.getCols()) {
                 val now = System.currentTimeMillis()
-                if (previousFlippedCol == col && previousFlippedRow == row && previousFlippedTime + EDIT_DEBOUNCE_MS > now) {
+                if (previousFlippedCol == cell.col && previousFlippedRow == cell.row && previousFlippedTime + EDIT_DEBOUNCE_MS > now) {
                     return
                 }
-                previousFlippedCol = col
-                previousFlippedRow = row
+                previousFlippedCol = cell.col
+                previousFlippedRow = cell.row
                 previousFlippedTime = now
-                game.grid[row][col] = if (game.grid[row][col] != 0) 0 else 1
+                toggleCell(game, cell)
             }
         }
     }
@@ -126,4 +124,6 @@ class GameOfLifeTouchController(
         private const val MAX_CELL_SCALE = 100f
         private const val EDIT_DEBOUNCE_MS = 500L
     }
+
+    private data class GridCell(val row: Int, val col: Int)
 }

@@ -83,7 +83,7 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        touchController.onSizeChanged(width, height)
+        touchController.onSizeChanged(w, h)
     }
 
     @SuppressLint("ClickableViewAccessibility")
