@@ -27,15 +27,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun SettingsDialog(onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    val preferences = remember { Settings.getPreferences(context) }
+    val settingsViewModel: SettingsViewModel = viewModel()
+    val settings by settingsViewModel.settings.collectAsStateWithLifecycle(initialValue = GameSettings())
     val populationOptions = stringArrayResource(R.array.population_options).toList()
     val populationValues = stringArrayResource(R.array.population_values).toList()
     val speedOptions = stringArrayResource(R.array.animation_speed_options).toList()
@@ -48,25 +49,7 @@ fun SettingsDialog(onDismiss: () -> Unit) {
     val spawnTitle = stringResource(R.string.spawn_title)
     val speedTitle = stringResource(R.string.speed_title)
     val themeTitle = stringResource(R.string.theme_title)
-    var minimumValue by remember { mutableStateOf(preferences.getString(KEY_MINIMUM_VARIABLE, "2") ?: "2") }
-    var maximumValue by remember { mutableStateOf(preferences.getString(KEY_MAXIMUM_VARIABLE, "3") ?: "3") }
-    var spawnValue by remember { mutableStateOf(preferences.getString(KEY_SPAWN_VARIABLE, "3") ?: "3") }
-    var speedValue by remember { mutableStateOf(preferences.getString(KEY_ANIMATION_SPEED, "10") ?: "10") }
-    var themeValue by remember {
-        mutableStateOf(BoardThemes.findById(preferences.getString(KEY_DISPLAY_THEME, BoardThemes.default().id)).id)
-    }
     var activeChoice by remember { mutableStateOf<PreferenceChoice?>(null) }
-
-    fun updatePreference(key: String, value: String) {
-        preferences.edit().putString(key, value).apply()
-        when (key) {
-            KEY_MINIMUM_VARIABLE -> minimumValue = value
-            KEY_MAXIMUM_VARIABLE -> maximumValue = value
-            KEY_SPAWN_VARIABLE -> spawnValue = value
-            KEY_ANIMATION_SPEED -> speedValue = value
-            KEY_DISPLAY_THEME -> themeValue = value
-        }
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -87,84 +70,85 @@ fun SettingsDialog(onDismiss: () -> Unit) {
                 PreferenceRow(
                     title = underpopulationTitle,
                     summary = stringResource(R.string.underpopulation_summary),
-                    value = labelFor(minimumValue, populationValues, populationOptions),
+                    value = labelFor(settings.minimumVariable.toString(), populationValues, populationOptions),
                     onClick = {
                         activeChoice = PreferenceChoice(
-                            key = KEY_MINIMUM_VARIABLE,
                             title = underpopulationTitle,
                             values = populationValues,
                             labels = populationOptions,
-                            selectedValue = minimumValue,
+                            selectedValue = settings.minimumVariable.toString(),
+                            onSelected = { value ->
+                                value.toIntOrNull()?.let { settingsViewModel.setMinimumVariable(it) }
+                            },
                         )
                     },
                 )
                 PreferenceRow(
                     title = overpopulationTitle,
                     summary = stringResource(R.string.overpopulation_summary),
-                    value = labelFor(maximumValue, populationValues, populationOptions),
+                    value = labelFor(settings.maximumVariable.toString(), populationValues, populationOptions),
                     onClick = {
                         activeChoice = PreferenceChoice(
-                            key = KEY_MAXIMUM_VARIABLE,
                             title = overpopulationTitle,
                             values = populationValues,
                             labels = populationOptions,
-                            selectedValue = maximumValue,
+                            selectedValue = settings.maximumVariable.toString(),
+                            onSelected = { value ->
+                                value.toIntOrNull()?.let { settingsViewModel.setMaximumVariable(it) }
+                            },
                         )
                     },
                 )
                 PreferenceRow(
                     title = spawnTitle,
                     summary = stringResource(R.string.spawn_summary),
-                    value = labelFor(spawnValue, populationValues, populationOptions),
+                    value = labelFor(settings.spawnVariable.toString(), populationValues, populationOptions),
                     onClick = {
                         activeChoice = PreferenceChoice(
-                            key = KEY_SPAWN_VARIABLE,
                             title = spawnTitle,
                             values = populationValues,
                             labels = populationOptions,
-                            selectedValue = spawnValue,
+                            selectedValue = settings.spawnVariable.toString(),
+                            onSelected = { value ->
+                                value.toIntOrNull()?.let { settingsViewModel.setSpawnVariable(it) }
+                            },
                         )
                     },
                 )
                 PreferenceRow(
                     title = stringResource(R.string.reset_population_settings_title),
                     summary = stringResource(R.string.reset_population_settings_summary),
-                    onClick = {
-                        preferences.edit()
-                            .putString(KEY_MINIMUM_VARIABLE, "2")
-                            .putString(KEY_MAXIMUM_VARIABLE, "3")
-                            .putString(KEY_SPAWN_VARIABLE, "3")
-                            .apply()
-                        minimumValue = "2"
-                        maximumValue = "3"
-                        spawnValue = "3"
-                    },
+                    onClick = settingsViewModel::resetPopulationSettings,
                 )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 SettingsSection(stringResource(R.string.display_settings_title))
                 PreferenceRow(
                     title = speedTitle,
-                    value = labelFor(speedValue, speedValues, speedOptions),
+                    value = labelFor(settings.animationSpeed.toString(), speedValues, speedOptions),
                     onClick = {
                         activeChoice = PreferenceChoice(
-                            key = KEY_ANIMATION_SPEED,
                             title = speedTitle,
                             values = speedValues,
                             labels = speedOptions,
-                            selectedValue = speedValue,
+                            selectedValue = settings.animationSpeed.toString(),
+                            onSelected = { value ->
+                                value.toIntOrNull()?.let { settingsViewModel.setAnimationSpeed(it) }
+                            },
                         )
                     },
                 )
                 PreferenceRow(
                     title = themeTitle,
-                    value = labelFor(themeValue, themeValues, themeOptions),
+                    value = labelFor(settings.displayThemeId, themeValues, themeOptions),
                     onClick = {
                         activeChoice = PreferenceChoice(
-                            key = KEY_DISPLAY_THEME,
                             title = themeTitle,
                             values = themeValues,
                             labels = themeOptions,
-                            selectedValue = themeValue,
+                            selectedValue = settings.displayThemeId,
+                            onSelected = { value ->
+                                settingsViewModel.setDisplayTheme(value)
+                            },
                         )
                     },
                 )
@@ -177,7 +161,7 @@ fun SettingsDialog(onDismiss: () -> Unit) {
             choice = choice,
             onDismiss = { activeChoice = null },
             onSelected = { value ->
-                updatePreference(choice.key, value)
+                choice.onSelected(value)
                 activeChoice = null
             },
         )
@@ -279,20 +263,14 @@ private fun PreferenceChoiceDialog(
 }
 
 private data class PreferenceChoice(
-    val key: String,
     val title: String,
     val values: List<String>,
     val labels: List<String>,
     val selectedValue: String,
+    val onSelected: (String) -> Unit,
 )
 
 private fun labelFor(value: String, values: List<String>, labels: List<String>): String {
     val index = values.indexOf(value)
     return labels.getOrNull(index) ?: value
 }
-
-private const val KEY_MINIMUM_VARIABLE = "minimum_variable"
-private const val KEY_MAXIMUM_VARIABLE = "maximum_variable"
-private const val KEY_SPAWN_VARIABLE = "spawn_variable"
-private const val KEY_ANIMATION_SPEED = "animation_speed"
-private const val KEY_DISPLAY_THEME = "display_theme"

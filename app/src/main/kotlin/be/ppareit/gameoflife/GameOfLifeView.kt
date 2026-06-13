@@ -2,7 +2,6 @@ package be.ppareit.gameoflife
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.AttributeSet
@@ -12,9 +11,11 @@ import be.ppareit.android.GameLoopView
 import be.ppareit.gameoflife.patterns.PatternFormatException
 import java.io.FileNotFoundException
 import java.io.InputStream
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
-class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(context, attrs),
-    SharedPreferences.OnSharedPreferenceChangeListener {
+class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(context, attrs) {
 
     enum class State {
         RUNNING,
@@ -22,6 +23,9 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         MOVING,
     }
 
+    private val settingsRepository = App.settingsRepository
+    private val settingsScope = MainScope()
+    private var settingsJob: Job? = null
     private var state = State.MOVING
     private val renderer = GameOfLifeRenderer(context)
     private val touchController = GameOfLifeTouchController(
@@ -33,19 +37,18 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     var onUndoStateChanged: ((Boolean) -> Unit)? = null
 
     init {
-        val settings = Settings.getSettings(context)
+        val settings = GameSettings()
         if (gameOfLife == null) {
             gameOfLife = GameOfLife(settings.rows, settings.cols).also {
-                it.setUnderPopulation(settings.getMinimumVariable())
-                it.setOverPopulation(settings.getMaximumVariable())
-                it.setSpawn(settings.getSpawnVariable())
+                it.setUnderPopulation(settings.minimumVariable)
+                it.setOverPopulation(settings.maximumVariable)
+                it.setSpawn(settings.spawnVariable)
                 it.loadGridFromFile(resources.openRawResource(R.raw.android))
             }
             undoManager = UndoManager(gameOfLife!!)
         }
 
-        setTargetFps(settings.getAnimationSpeed())
-        Settings.getPreferences(context).registerOnSharedPreferenceChangeListener(this)
+        setTargetFps(settings.animationSpeed)
     }
 
     fun setMode(mode: State) {
@@ -73,13 +76,27 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
         renderer.draw(canvas, width, height, game, touchController.drawMatrix)
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-        val settings = Settings.getSettings(context)
-        gameOfLife?.setUnderPopulation(settings.getMinimumVariable())
-        gameOfLife?.setOverPopulation(settings.getMaximumVariable())
-        gameOfLife?.setSpawn(settings.getSpawnVariable())
-        setTargetFps(settings.getAnimationSpeed())
-        renderer.updateTheme()
+    private fun applySettings(settings: GameSettings) {
+        gameOfLife?.setUnderPopulation(settings.minimumVariable)
+        gameOfLife?.setOverPopulation(settings.maximumVariable)
+        gameOfLife?.setSpawn(settings.spawnVariable)
+        setTargetFps(settings.animationSpeed)
+        renderer.updateTheme(settings.displayTheme)
+        invalidate()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (settingsJob?.isActive == true) return
+        settingsJob = settingsScope.launch {
+            settingsRepository.settings.collect { applySettings(it) }
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        settingsJob?.cancel()
+        settingsJob = null
+        super.onDetachedFromWindow()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

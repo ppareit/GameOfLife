@@ -15,6 +15,7 @@ class App : Application() {
         private val TAG = App::class.java.simpleName
         lateinit var app: App
             private set
+        val settingsRepository: SettingsRepository by lazy { SettingsRepository(app) }
 
         fun getVersion(): String {
             val context = app.applicationContext

@@ -16,11 +16,10 @@ class GameOfLifeRenderer(context: Context) {
     private lateinit var deadCell: Drawable
 
     init {
-        updateTheme()
+        updateTheme(BoardThemes.default())
     }
 
-    fun updateTheme() {
-        val theme = Settings.getSettings(appContext).getDisplayTheme()
+    fun updateTheme(theme: BoardThemeSpec) {
         backgroundPaint = Paint().apply {
             color = appContext.getColor(theme.backgroundColorRes)
         }
