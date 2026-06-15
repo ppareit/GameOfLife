@@ -42,7 +42,7 @@ class GameOfLifeView(
         invalidate()
     }
 
-    fun setMode(mode: GameMode) {
+    fun applyMode(mode: GameMode) {
         if (mode == GameMode.RUNNING) {
             startGameLoop()
         } else {

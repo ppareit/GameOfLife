@@ -189,14 +189,14 @@ fun GameOfLifeScreen(initialUri: Uri?) {
                                     gameView = view
                                     view.session = session
                                     view.applySettings(currentSettings)
-                                    view.setMode(mode)
+                                    view.applyMode(mode)
                                 }
                             },
                             modifier = Modifier.fillMaxSize(),
                             update = { view ->
                                 view.applySettings(currentSettings)
                                 view.session = session
-                                view.setMode(mode)
+                                view.applyMode(mode)
                             },
                         )
                     }
