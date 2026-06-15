@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun GameDrawer(
     onNew: () -> Unit,
+    onRandomize: () -> Unit,
     onLoadSeed: () -> Unit,
     onLoadFromFile: () -> Unit,
     onSaveToFile: () -> Unit,
@@ -28,6 +29,7 @@ fun GameDrawer(
         )
         HorizontalDivider()
         DrawerAction(stringResource(R.string.new_label), onNew)
+        DrawerAction(stringResource(R.string.randomize_label), onRandomize)
         DrawerAction(stringResource(R.string.load_seed_label), onLoadSeed)
         DrawerAction(stringResource(R.string.load_from_file_label), onLoadFromFile)
         DrawerAction(stringResource(R.string.save_to_file_label), onSaveToFile)

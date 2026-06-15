@@ -43,6 +43,11 @@ class GameSessionViewModel(application: Application) : AndroidViewModel(applicat
         game.resetGrid()
     }
 
+    fun randomizeGrid() {
+        pushUndoState()
+        game.randomizeGrid(RANDOM_SEED_DENSITY)
+    }
+
     fun step() {
         pushUndoState()
         game.generateNextGeneration()
@@ -106,3 +111,5 @@ enum class GameMode {
     EDITING,
     MOVING,
 }
+
+private const val RANDOM_SEED_DENSITY = 0.25

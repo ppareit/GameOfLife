@@ -6,6 +6,7 @@ import be.ppareit.gameoflife.patterns.Life106Format
 import be.ppareit.gameoflife.patterns.PatternFormats
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.random.Random
 
 class GameOfLife(private val rows: Int, private val cols: Int) {
     private var minimum = 2
@@ -20,6 +21,16 @@ class GameOfLife(private val rows: Int, private val cols: Int) {
     fun resetGrid() {
         for (row in 0 until rows) {
             grid[row].fill(0)
+        }
+    }
+
+    fun randomizeGrid(density: Double, random: Random = Random.Default) {
+        require(density in 0.0..1.0) { "density must be between 0.0 and 1.0" }
+
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                grid[row][col] = if (random.nextDouble() < density) 1 else 0
+            }
         }
     }
 

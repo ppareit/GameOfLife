@@ -4,6 +4,7 @@
     <string name="app_name">Game Of Life</string>
     <string name="menu_label">Menu</string>
     <string name="new_label">New</string>
+    <string name="randomize_label">Generate random</string>
     <string name="load_seed_label">Load seed...</string>
     <string name="load_from_file_label">Load from file...</string>
     <string name="save_to_file_label">Save to file...</string>

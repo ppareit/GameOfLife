@@ -3,6 +3,7 @@ package be.ppareit.gameoflife
 import be.ppareit.gameoflife.patterns.PatternFormatException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import kotlin.random.Random
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -82,6 +83,19 @@ class GameOfLifeTest {
             """.trimIndent(),
             output.toString(),
         )
+    }
+
+    @Test
+    fun randomizeGridFillsCellsFromDensity() {
+        val game = GameOfLife(5, 5)
+
+        game.randomizeGrid(1.0, Random(0))
+
+        assertEquals(25, game.grid.sumOf { row -> row.count { it != 0 } })
+
+        game.randomizeGrid(0.0, Random(0))
+
+        assertEquals(0, game.grid.sumOf { row -> row.count { it != 0 } })
     }
 
     private fun assertFormatNotSupported(block: () -> Unit) {

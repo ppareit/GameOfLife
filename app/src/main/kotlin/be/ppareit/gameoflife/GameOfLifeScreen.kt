@@ -107,6 +107,12 @@ fun GameOfLifeScreen(initialUri: Uri?) {
                         gameView?.invalidateBoard()
                         scope.launch { drawerState.close() }
                     },
+                    onRandomize = {
+                        session.changeMode(GameMode.MOVING)
+                        session.randomizeGrid()
+                        gameView?.invalidateBoard()
+                        scope.launch { drawerState.close() }
+                    },
                     onLoadSeed = {
                         session.changeMode(GameMode.MOVING)
                         activeDialog = ActiveDialog.SeedPicker
