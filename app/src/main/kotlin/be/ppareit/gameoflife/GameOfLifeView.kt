@@ -6,16 +6,14 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.MotionEvent
 import be.ppareit.android.GameLoopView
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 
-class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(context, attrs) {
+class GameOfLifeView(
+    context: Context,
+    attrs: AttributeSet?,
+    initialSettings: GameSettings,
+) : GameLoopView(context, attrs) {
 
-    private val settingsRepository = App.settingsRepository
-    private val settingsScope = MainScope()
-    private var settingsJob: Job? = null
-    private val renderer = GameOfLifeRenderer(context)
+    private val renderer = GameOfLifeRenderer(context, initialSettings.displayTheme)
     private val touchController = GameOfLifeTouchController(
         context = context,
         getGame = { session?.game },
@@ -29,11 +27,19 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
             if (width > 0 && height > 0) {
                 touchController.onSizeChanged(width, height)
             }
-            invalidate()
         }
 
     init {
-        setTargetFps(GameSettings().animationSpeed)
+        setTargetFps(initialSettings.animationSpeed)
+    }
+
+    fun applySettings(settings: GameSettings) {
+        session?.game?.setUnderPopulation(settings.minimumVariable)
+        session?.game?.setOverPopulation(settings.maximumVariable)
+        session?.game?.setSpawn(settings.spawnVariable)
+        setTargetFps(settings.animationSpeed)
+        renderer.updateTheme(settings.displayTheme)
+        invalidate()
     }
 
     fun setMode(mode: GameMode) {
@@ -51,29 +57,6 @@ class GameOfLifeView(context: Context, attrs: AttributeSet?) : GameLoopView(cont
     override fun onDraw(canvas: Canvas) {
         val game = session?.game ?: return
         renderer.draw(canvas, width, height, game, touchController.drawMatrix)
-    }
-
-    private fun applySettings(settings: GameSettings) {
-        session?.game?.setUnderPopulation(settings.minimumVariable)
-        session?.game?.setOverPopulation(settings.maximumVariable)
-        session?.game?.setSpawn(settings.spawnVariable)
-        setTargetFps(settings.animationSpeed)
-        renderer.updateTheme(settings.displayTheme)
-        invalidate()
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        if (settingsJob?.isActive == true) return
-        settingsJob = settingsScope.launch {
-            settingsRepository.settings.collect { applySettings(it) }
-        }
-    }
-
-    override fun onDetachedFromWindow() {
-        settingsJob?.cancel()
-        settingsJob = null
-        super.onDetachedFromWindow()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

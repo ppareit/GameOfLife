@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
@@ -46,6 +47,8 @@ fun GameOfLifeScreen(initialUri: Uri?) {
     val context = LocalContext.current
     val assets = context.assets
     val session: GameSessionViewModel = viewModel()
+    val settingsViewModel: SettingsViewModel = viewModel()
+    val settings by settingsViewModel.settings.collectAsStateWithLifecycle<GameSettings?>(initialValue = null)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var gameView by remember { mutableStateOf<GameOfLifeView?>(null) }
@@ -179,20 +182,24 @@ fun GameOfLifeScreen(initialUri: Uri?) {
                         .padding(padding)
                         .fillMaxSize(),
                 ) {
-                    AndroidView(
-                        factory = { context ->
-                            GameOfLifeView(context, null).also { view ->
-                                gameView = view
+                    settings?.let { currentSettings ->
+                        AndroidView(
+                            factory = { context ->
+                                GameOfLifeView(context, null, currentSettings).also { view ->
+                                    gameView = view
+                                    view.session = session
+                                    view.applySettings(currentSettings)
+                                    view.setMode(mode)
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                            update = { view ->
+                                view.applySettings(currentSettings)
                                 view.session = session
                                 view.setMode(mode)
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize(),
-                        update = { view ->
-                            view.session = session
-                            view.setMode(mode)
-                        },
-                    )
+                            },
+                        )
+                    }
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()

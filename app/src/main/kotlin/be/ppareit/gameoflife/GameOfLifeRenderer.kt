@@ -8,7 +8,7 @@ import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.withMatrix
 
-class GameOfLifeRenderer(context: Context) {
+class GameOfLifeRenderer(context: Context, initialTheme: BoardThemeSpec) {
     private val appContext = context.applicationContext
     private val canvasPaint = Paint().apply { color = Color.GRAY }
     private var backgroundPaint = Paint()
@@ -16,7 +16,7 @@ class GameOfLifeRenderer(context: Context) {
     private lateinit var deadCell: Drawable
 
     init {
-        updateTheme(BoardThemes.default())
+        updateTheme(initialTheme)
     }
 
     fun updateTheme(theme: BoardThemeSpec) {
