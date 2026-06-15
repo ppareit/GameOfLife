@@ -26,7 +26,13 @@ class GameSessionViewModel(application: Application) : AndroidViewModel(applicat
             it.setUnderPopulation(settings.minimumVariable)
             it.setOverPopulation(settings.maximumVariable)
             it.setSpawn(settings.spawnVariable)
-            appContext.resources.openRawResource(R.raw.android).use(it::loadGridFromFile)
+            appContext.resources.openRawResource(R.raw.android).use { input ->
+                it.loadGridFromFileOnRandomBackground(
+                    inputStream = input,
+                    density = RANDOM_SEED_DENSITY,
+                    padding = STARTUP_PATTERN_PADDING,
+                )
+            }
         }
         undoManager = UndoManager(game)
     }
@@ -113,3 +119,4 @@ enum class GameMode {
 }
 
 private const val RANDOM_SEED_DENSITY = 0.25
+private const val STARTUP_PATTERN_PADDING = 2

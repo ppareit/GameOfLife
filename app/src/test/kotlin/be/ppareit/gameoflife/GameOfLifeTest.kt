@@ -98,6 +98,35 @@ class GameOfLifeTest {
         assertEquals(0, game.grid.sumOf { row -> row.count { it != 0 } })
     }
 
+    @Test
+    fun loadGridFromFileOnRandomBackgroundClearsPaddedPatternArea() {
+        val game = GameOfLife(10, 10)
+
+        game.loadGridFromFileOnRandomBackground(
+            inputStream = """
+                #Life 1.06
+                0 0
+                2 0
+                0 2
+                2 2
+            """.trimIndent().asInputStream(),
+            density = 1.0,
+            padding = 1,
+            random = Random(0),
+        )
+
+        assertEquals(1, game.grid[4][4])
+        assertEquals(1, game.grid[4][6])
+        assertEquals(1, game.grid[6][4])
+        assertEquals(1, game.grid[6][6])
+        assertEquals(0, game.grid[3][3])
+        assertEquals(0, game.grid[3][7])
+        assertEquals(0, game.grid[7][3])
+        assertEquals(0, game.grid[7][7])
+        assertEquals(1, game.grid[2][2])
+        assertEquals(1, game.grid[8][8])
+    }
+
     private fun assertFormatNotSupported(block: () -> Unit) {
         try {
             block()
