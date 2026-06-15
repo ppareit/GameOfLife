@@ -1,6 +1,8 @@
 package be.ppareit.gameoflife
 
+import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,29 +45,30 @@ import kotlinx.coroutines.launch
 fun GameOfLifeScreen(initialUri: Uri?) {
     val context = LocalContext.current
     val assets = context.assets
+    val session: GameSessionViewModel = viewModel()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var gameView by remember { mutableStateOf<GameOfLifeView?>(null) }
-    var mode by remember { mutableStateOf(GameOfLifeView.State.MOVING) }
-    var canUndo by remember { mutableStateOf(false) }
     var activeDialog by remember { mutableStateOf<ActiveDialog?>(null) }
     val seeds = remember(assets) { assets.list("life106")?.sorted().orEmpty() }
+    val mode = session.mode
+    val canUndo = session.canUndo
 
     val loadFromFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument(),
     ) { uri ->
-        uri?.let { gameView?.doLoad(it) }
+        uri?.let {
+            showFileOperationResult(context, session.load(it))
+            gameView?.invalidateBoard()
+        }
     }
 
     val saveToFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
     ) { uri ->
-        uri?.let { gameView?.doSave(it) }
-    }
-
-    fun moveMode() {
-        gameView?.setMode(GameOfLifeView.State.MOVING)
-        mode = GameOfLifeView.State.MOVING
+        uri?.let {
+            showFileOperationResult(context, session.save(it))
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -73,7 +77,8 @@ fun GameOfLifeScreen(initialUri: Uri?) {
 
     LaunchedEffect(gameView, initialUri) {
         if (gameView != null && initialUri != null) {
-            gameView?.doLoad(initialUri)
+            showFileOperationResult(context, session.load(initialUri))
+            gameView?.invalidateBoard()
         }
     }
 
@@ -94,22 +99,23 @@ fun GameOfLifeScreen(initialUri: Uri?) {
             drawerContent = {
                 GameDrawer(
                     onNew = {
-                        moveMode()
-                        gameView?.clearGrid()
+                        session.changeMode(GameMode.MOVING)
+                        session.clearGrid()
+                        gameView?.invalidateBoard()
                         scope.launch { drawerState.close() }
                     },
                     onLoadSeed = {
-                        moveMode()
+                        session.changeMode(GameMode.MOVING)
                         activeDialog = ActiveDialog.SeedPicker
                         scope.launch { drawerState.close() }
                     },
                     onLoadFromFile = {
-                        moveMode()
+                        session.changeMode(GameMode.MOVING)
                         loadFromFileLauncher.launch(arrayOf("*/*"))
                         scope.launch { drawerState.close() }
                     },
                     onSaveToFile = {
-                        moveMode()
+                        session.changeMode(GameMode.MOVING)
                         saveToFileLauncher.launch("game-of-life.life")
                         scope.launch { drawerState.close() }
                     },
@@ -138,16 +144,24 @@ fun GameOfLifeScreen(initialUri: Uri?) {
                                 mode = mode,
                                 canUndo = canUndo,
                                 onStart = {
-                                    gameView?.setMode(GameOfLifeView.State.RUNNING)
-                                    mode = GameOfLifeView.State.RUNNING
+                                    session.changeMode(GameMode.RUNNING)
                                 },
-                                onPause = { moveMode() },
-                                onStep = { gameView?.doSingleStep() },
-                                onUndo = { gameView?.doUndo() },
-                                onMove = { moveMode() },
+                                onPause = {
+                                    session.changeMode(GameMode.MOVING)
+                                },
+                                onStep = {
+                                    session.step()
+                                    gameView?.invalidateBoard()
+                                },
+                                onUndo = {
+                                    session.undo()
+                                    gameView?.invalidateBoard()
+                                },
+                                onMove = {
+                                    session.changeMode(GameMode.MOVING)
+                                },
                                 onEdit = {
-                                    gameView?.setMode(GameOfLifeView.State.EDITING)
-                                    mode = GameOfLifeView.State.EDITING
+                                    session.changeMode(GameMode.EDITING)
                                 },
                             )
                         },
@@ -169,17 +183,14 @@ fun GameOfLifeScreen(initialUri: Uri?) {
                         factory = { context ->
                             GameOfLifeView(context, null).also { view ->
                                 gameView = view
-                                view.onUndoStateChanged = { canUndo = it }
-                                canUndo = view.canUndo()
+                                view.session = session
                                 view.setMode(mode)
                             }
                         },
                         modifier = Modifier.fillMaxSize(),
                         update = { view ->
-                            view.onUndoStateChanged = { canUndo = it }
-                            if (view.getGameState() != mode) {
-                                view.setMode(mode)
-                            }
+                            view.session = session
+                            view.setMode(mode)
                         },
                     )
                     Box(
@@ -217,7 +228,8 @@ fun GameOfLifeScreen(initialUri: Uri?) {
                 onDismiss = { activeDialog = null },
                 onSeedSelected = { seed ->
                     activeDialog = null
-                    assets.open("life106/$seed").use { gameView?.doLoad(it) }
+                    assets.open("life106/$seed").use { session.load(it) }
+                    gameView?.invalidateBoard()
                 },
             )
             ActiveDialog.Settings -> SettingsDialog(onDismiss = { activeDialog = null })
@@ -230,4 +242,16 @@ private enum class ActiveDialog {
     About,
     SeedPicker,
     Settings,
+}
+
+private fun showFileOperationResult(context: Context, result: FileOperationResult) {
+    when (result) {
+        FileOperationResult.Success -> Unit
+        FileOperationResult.FileNotFound -> {
+            Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show()
+        }
+        FileOperationResult.FormatNotSupported -> {
+            Toast.makeText(context, R.string.file_format_not_supported, Toast.LENGTH_LONG).show()
+        }
+    }
 }

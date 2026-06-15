@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun GameControls(
-    mode: GameOfLifeView.State,
+    mode: GameMode,
     canUndo: Boolean,
     onStart: () -> Unit,
     onPause: () -> Unit,
@@ -31,19 +31,19 @@ fun GameControls(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (mode == GameOfLifeView.State.RUNNING) {
+        if (mode == GameMode.RUNNING) {
             ToolbarText(stringResource(R.string.pause_label), onPause)
         } else {
             ToolbarText(stringResource(R.string.start_label), onStart)
             ToolbarText(stringResource(R.string.step_label), onStep)
             ToolbarText(stringResource(R.string.undo_label), onUndo, enabled = canUndo)
             Spacer(Modifier.width(4.dp))
-            ToolbarText(label = if (mode == GameOfLifeView.State.EDITING) {
+            ToolbarText(label = if (mode == GameMode.EDITING) {
                 stringResource(R.string.edit_label)
             } else {
                 stringResource(R.string.move_label)
             }, onClick = {
-                if (mode == GameOfLifeView.State.EDITING) {
+                if (mode == GameMode.EDITING) {
                     onMove()
                 } else {
                     onEdit()

@@ -29,16 +29,16 @@ class GameOfLifeTouchController(
         drawMatrix.postTranslate(width / 2f, height / 2f)
     }
 
-    fun onTouchEvent(event: MotionEvent, state: GameOfLifeView.State) {
-        when (state) {
-            GameOfLifeView.State.EDITING -> {
+    fun onTouchEvent(event: MotionEvent, mode: GameMode) {
+        when (mode) {
+            GameMode.EDITING -> {
                 scaleDetector.onTouchEvent(event)
                 if (!scaleDetector.isInProgress) {
                     editListener.onTouchEvent(event)
                 }
             }
-            GameOfLifeView.State.MOVING,
-            GameOfLifeView.State.RUNNING -> {
+            GameMode.MOVING,
+            GameMode.RUNNING -> {
                 scaleDetector.onTouchEvent(event)
                 moveDetector.onTouchEvent(event)
             }
