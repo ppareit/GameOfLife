@@ -1,3 +1,11 @@
+Version 2.1.1 (25/6/2026)
+* Reworked the app in Kotlin and Jetpack Compose
+* Updated Android, Gradle, and library versions
++ Added RLE seed pattern support
++ Added random grid generation and a random startup background
+* Improved settings persistence and save-to-file handling
+* Fixed canvas sizing, drawer gestures, and row/column handling
+
 Version 2.0.1
 * Fix minor issues
 

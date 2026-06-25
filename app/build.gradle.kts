@@ -15,8 +15,8 @@ android {
     defaultConfig {
         applicationId = "be.ppareit.gameoflife"
         minSdk = 23
-        versionCode = 20002
-        versionName = "2.0.2"
+        versionCode = 20101
+        versionName = "2.1.1"
     }
 }
 
